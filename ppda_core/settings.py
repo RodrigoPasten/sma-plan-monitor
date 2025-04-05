@@ -174,6 +174,27 @@ JAZZMIN_SETTINGS = {
         {"name": "Inicio", "url": "/admin", "permissions": ["auth.view_user"]},
         {"name": "Documentación", "url": "https://www.djangoproject.com/", "new_window": True},
     ],
+    "icons": {
+        #Probando cambiar iconos
+        "auth.user": "fas fa-users",
+        "usuarios.usuario": "fas fa-user-circle",
+        "notificaciones.notificacion": "fas fa-bell",
+        "medidas.medida": "fas fa-chart-line",
+        "organismos.organismo": "fas fa-building",
+        "auditorias.auditoria": "fas fa-check-circle",
+        "reportes.reporte": "fas fa-file-alt",
+        "organismos.contactoorganismo": "fas fa-phone-alt",
+        "reportes.tiporeporte": "fas fa-clipboard-list",
+        "medidas.registroavance": "fas fa-tasks",
+        "usuarios.historialacceso": "fas fa-book",
+        "medidas.asignacionmedida": "fas fa-ruler-combined",
+        "auditorias.configuracionauditoria": "fas fa-cogs",
+        "medidas.componente": "fas fa-cogs",
+        "notificaciones.configuracionnotificaciones": "fas fa-bell-slash"
+
+
+
+    },
 
     "user_avatar": "path_to_avatar.png",
 }

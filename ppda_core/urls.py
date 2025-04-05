@@ -26,12 +26,12 @@ urlpatterns = [
     path('api/v1/', include('apps.api.urls')),
     path('medidas/', include('apps.medidas.urls')),
     # path('organismos/', include('apps.organismos.urls')),
-    # path('usuarios/', include('apps.usuarios.urls')),
+    #path('usuarios/', include('apps.usuarios.urls')),
     # path('reportes/', include('apps.reportes.urls')),
     # path('notificaciones/', include('apps.notificaciones.urls')),
     # path('auditorias/', include('apps.auditorias.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
-    # # El portal público se mapea a la raíz del sitio
+    # El portal público se mapea a la raíz del sitio
     path('', include('apps.publico.urls')),
 ]
 # Agregar URLs para archivos estáticos y media en desarrollo
