@@ -1,3 +1,4 @@
+# apps/medidas/models.py
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from apps.organismos.models import Organismo
@@ -5,8 +6,8 @@ from apps.organismos.models import Organismo
 
 class Componente(models.Model):
     """
-    Representa un componente del plan de descontaminación.
-    Por ejemplo: Calidad del Aire, Gestión de Residuos, etc.... zzzzzz
+    Representa un componente o área temática del plan de descontaminación.
+    Por ejemplo: Calidad del Aire, Gestión de Residuos, etc.
     """
     nombre = models.CharField(_("Nombre"), max_length=200)
     descripcion = models.TextField(_("Descripción"))

@@ -16,10 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # API Endpoint
-    path('api/v1/', include('apps.api.urls'))
+    path('api/v1/', include('apps.api.urls')),
+    path('medidas/', include('apps.medidas.urls')),
+    # path('organismos/', include('apps.organismos.urls')),
+    # path('usuarios/', include('apps.usuarios.urls')),
+    # path('reportes/', include('apps.reportes.urls')),
+    # path('notificaciones/', include('apps.notificaciones.urls')),
+    # path('auditorias/', include('apps.auditorias.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    # # El portal público se mapea a la raíz del sitio
+    path('', include('apps.publico.urls')),
 ]
+# Agregar URLs para archivos estáticos y media en desarrollo
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

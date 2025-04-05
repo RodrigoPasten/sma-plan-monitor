@@ -10,7 +10,7 @@ from .views.medidas import ComponenteViewSet, MedidaViewSet, RegistroAvanceViewS
 from .views.dashboard import DashboardView
 
 # Pendiente por la app Reporte
-# from .views.reportes import TipoReporteViewSet, ReporteGeneradoViewSet
+from .views.reportes import TipoReporteViewSet, ReporteGeneradoViewSet
 
 # Configuración de drf-yasg (Swagger)
 schema_view = get_schema_view(
@@ -37,8 +37,8 @@ router.register(r'registros-avance', RegistroAvanceViewSet)
 
 
 
-# router.register(r'tipos-reporte', TipoReporteViewSet)
-# router.register(r'reportes', ReporteGeneradoViewSet, basename='reportes')
+router.register(r'tipos-reporte', TipoReporteViewSet)
+router.register(r'reportes', ReporteGeneradoViewSet, basename='reportes')
 
 # URLs de la API
 urlpatterns = [
