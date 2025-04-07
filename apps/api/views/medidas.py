@@ -18,6 +18,7 @@ from ..permissions import (
     IsOrganismoMember,
     IsOrganismoOwner
 )
+from apps.medidas.serializers import MedidaSerializer
 
 
 @extend_schema_view(
@@ -38,7 +39,7 @@ class ComponenteViewSet(viewsets.ReadOnlyModelViewSet):
 @extend_schema_view(
     list=extend_schema(description="Listar todas las medidas"),
     retrieve=extend_schema(description="Obtener una medida específica"),
-    create=extend_schema(description="Crear una nueva medida"),
+    create=extend_schema(description="Crear una nueva medida", request=MedidaSerializer, responses={201: MedidaDetailSerializer}),
     update=extend_schema(description="Actualizar una medida existente"),
     partial_update=extend_schema(description="Actualizar parcialmente una medida"),
     destroy=extend_schema(description="Eliminar una medida")
@@ -72,6 +73,8 @@ class MedidaViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'list':
             return MedidaListSerializer
+        elif self.action == 'create':
+            return MedidaSerializer
         return MedidaDetailSerializer
 
     def get_permissions(self):
