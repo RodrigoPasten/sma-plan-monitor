@@ -186,7 +186,22 @@ class RegistroAvanceViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
+        # Verificar si se proporcionó una medida
+        medida_id = self.request.data.get('medida')
+        if not medida_id:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError({'medida': 'Este campo es obligatorio'})
+
+        # Verificar que la medida exista
+        try:
+            medida = Medida.objects.get(pk=medida_id)
+        except Medida.DoesNotExist:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError({'medida': 'Medida no encontrada'})
+
+        # Guardar con todos los campos necesarios
         serializer.save(
             created_by=self.request.user,
-            organismo=self.request.user.organismo
+            organismo=self.request.user.organismo,
+            medida=medida
         )
