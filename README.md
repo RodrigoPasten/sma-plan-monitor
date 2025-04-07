@@ -210,8 +210,8 @@ Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](L
 
 ## 📧 Contacto
 
-Para soporte o consultas: [tu@email.com](mailto:tu@email.com)
+Para soporte o consultas: [grupo5@chinorios.com](mailto:jesushippie@chinorios.com)
 
 ---
 
-Desarrollado por [Tu Nombre/Empresa](https://tu-sitio.com) © 2025
+Desarrollado por [Grupo 5](https://grupo-5.com) © 2025
