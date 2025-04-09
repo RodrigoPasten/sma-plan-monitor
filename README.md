@@ -57,7 +57,7 @@ pip install -r requirements.txt
 # Crear la base de datos
 createdb plan_descontaminacion
 
-# Configurar credenciales en .env (si archivo .env - env no existe, crearlo en la raíz del directorio
+# Configurar credenciales en .env (si archivo .env - env no existe, crearlo en la raíz del directorio)
 cp .env.example .env
 # Editar .env con tus credenciales
 ```
