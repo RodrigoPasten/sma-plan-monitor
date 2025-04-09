@@ -10,10 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
+from dotenv import load_dotenv
 from pathlib import Path
 
+load_dotenv('.env')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Database variables
+dbname = os.getenv('DB_NAME')
+dbuser = os.getenv('DB_USER')
+dbpass = os.getenv('DB_PASSWORD')
+dbhost = os.getenv('DB_HOST')
+dbport = os.getenv('DB_PORT')
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -100,11 +110,11 @@ WSGI_APPLICATION = 'ppda_core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'plan_descontaminacion',
-        'USER': 'django_user',
-        'PASSWORD': 'password123',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': dbname,
+        'USER': dbuser,
+        'PASSWORD': dbpass,
+        'HOST': dbhost,
+        'PORT': dbport,
     }
 }
 
