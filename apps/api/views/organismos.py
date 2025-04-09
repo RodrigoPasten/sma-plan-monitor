@@ -9,6 +9,8 @@ from ..serializers.organismos import (
 )
 from apps.organismos.serializers import OrganismoSerializer
 from ..permissions import IsPublicEndpoint, IsAdminSMA, IsSuperAdmin
+from rest_framework import status
+from rest_framework.response import Response
 
 
 @extend_schema_view(
@@ -56,3 +58,12 @@ class OrganismoViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsSuperAdmin | IsAdminSMA]
         return [permission() for permission in permission_classes]
+    
+    def destroy(self, request, *args, **kwargs):
+        """Desactivar un Organismo: Cambiar el estado de un organismo a Inactivo en lugar de borrar."""
+        instance = self.get_object()
+        instance.activo = False
+        instance.save()
+        
+        return Response({"message":"Organismo desactivado con éxito."},
+                        status=status.HTTP_204_NO_CONTENT)

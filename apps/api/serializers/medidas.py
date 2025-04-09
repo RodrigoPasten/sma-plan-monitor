@@ -17,20 +17,35 @@ class AsignacionMedidaSerializer(serializers.ModelSerializer):
         fields = ['id', 'organismo', 'es_coordinador', 'descripcion_responsabilidad']
 
 
+class MedidaListSerializer(serializers.ModelSerializer):
+    componente = ComponenteSerializer(read_only=True)
+
+    class Meta:
+
+        model = Medida
+        fields = ['id', 'codigo', 'nombre', 'componente', 'estado',
+                  'porcentaje_avance', 'fecha_inicio', 'fecha_termino']
+
+        model = RegistroAvance
+
+
 class RegistroAvanceSerializer(serializers.ModelSerializer):
-    organismo = OrganismoSimpleSerializer(read_only=True)
+    #organismo = OrganismoSimpleSerializer(read_only=True)
+    #medidas = serializers.PrimaryKeyRelatedField(
+     #   source='medida', 
+      #  queryset=Medida.objects.all())
 
     class Meta:
         model = RegistroAvance
-<<<<<<< Updated upstream
+        
+        fields = ['fecha_registro', 'porcentaje_avance', 'descripcion',
+                  'evidencia', 'created_at']
 
-      
-        fields = ['id', 'medidas', 'fecha_registro', 'porcentaje_avance', 'descripcion',
 
-=======
         fields = ['id', 'fecha_registro', 'porcentaje_avance', 'descripcion',
->>>>>>> Stashed changes
+
                   'evidencia', 'organismo', 'created_at']
+
         read_only_fields = ['created_at', 'created_by']
 
     def create(self, validated_data):
@@ -41,16 +56,6 @@ class RegistroAvanceSerializer(serializers.ModelSerializer):
             validated_data['organismo'] = self.context['request'].user.organismo
         return super().create(validated_data)
 
-
-class MedidaListSerializer(serializers.ModelSerializer):
-    componente = ComponenteSerializer(read_only=True)
-
-    class Meta:
-        model = Medida
-        fields = ['id', 'codigo', 'nombre', 'componente', 'estado',
-                  'porcentaje_avance', 'fecha_inicio', 'fecha_termino']
-
-
 class MedidaDetailSerializer(serializers.ModelSerializer):
     componente = ComponenteSerializer(read_only=True)
     asignaciones = AsignacionMedidaSerializer(many=True, read_only=True)
@@ -60,4 +65,17 @@ class MedidaDetailSerializer(serializers.ModelSerializer):
         model = Medida
         fields = ['id', 'codigo', 'nombre', 'descripcion', 'componente',
                   'fecha_inicio', 'fecha_termino', 'estado', 'prioridad',
+
                   'porcentaje_avance', 'asignaciones', 'registros_avance']
+
+
+class RegistroAvanceDetailSerializer(serializers.ModelSerializer):
+    medida = MedidaDetailSerializer(read_only=True)
+    organismo = OrganismoSimpleSerializer(read_only=True)
+    
+    class Meta:
+        model = RegistroAvance
+        fields = ['id', 'medida', 'fecha_registro', 'porcentaje_avance', 'descripcion', 'evidencia', 'organismo', 'created_at']
+
+                  'porcentaje_avance', 'asignaciones', 'registros_avance']
+
