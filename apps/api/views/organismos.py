@@ -7,6 +7,7 @@ from ..serializers.organismos import (
     OrganismoSimpleSerializer,
     TipoOrganismoSerializer
 )
+from apps.organismos.serializers import OrganismoSerializer
 from ..permissions import IsPublicEndpoint, IsAdminSMA, IsSuperAdmin
 
 
@@ -28,7 +29,7 @@ class TipoOrganismoViewSet(viewsets.ReadOnlyModelViewSet):
 @extend_schema_view(
     list=extend_schema(description="Listar todos los organismos"),
     retrieve=extend_schema(description="Obtener un organismo específico"),
-    create=extend_schema(description="Crear un nuevo organismo"),
+    create=extend_schema(description="Crear un nuevo organismo", request=OrganismoSerializer, responses={201: OrganismoDetailSerializer}),
     update=extend_schema(description="Actualizar un organismo existente"),
     partial_update=extend_schema(description="Actualizar parcialmente un organismo"),
     destroy=extend_schema(description="Eliminar un organismo")
@@ -45,6 +46,8 @@ class OrganismoViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'list':
             return OrganismoSimpleSerializer
+        elif self.action == 'create':
+            return OrganismoSerializer
         return OrganismoDetailSerializer
 
     def get_permissions(self):

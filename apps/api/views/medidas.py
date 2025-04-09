@@ -2,7 +2,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse
+from drf_spectacular import serializers
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, inline_serializer
 from ..filters import MedidaFilter, RegistroAvanceFilter
 from apps.medidas.models import Componente, Medida, RegistroAvance
 from ..serializers.medidas import (
@@ -19,6 +20,7 @@ from ..permissions import (
     IsOrganismoOwner
 )
 from apps.medidas.serializers import MedidaSerializer
+from apps.medidas.models import LogMedida
 
 
 @extend_schema_view(
@@ -42,7 +44,16 @@ class ComponenteViewSet(viewsets.ReadOnlyModelViewSet):
     create=extend_schema(description="Crear una nueva medida", request=MedidaSerializer, responses={201: MedidaDetailSerializer}),
     update=extend_schema(description="Actualizar una medida existente"),
     partial_update=extend_schema(description="Actualizar parcialmente una medida"),
-    destroy=extend_schema(description="Eliminar una medida")
+    destroy=extend_schema(description="Eliminar una medida"),
+    registrar_avance=extend_schema(
+        description="Registrar un nuevo avance para esta medida",
+        request=RegistroAvanceSerializer,
+        responses={
+            201: RegistroAvanceSerializer,
+            403: OpenApiResponse(description="El organismo del usuario no está asignado a esta medida"),
+            400: OpenApiResponse(description="Datos inválidos")
+        }
+    )
 )
 class MedidaViewSet(viewsets.ModelViewSet):
     """
@@ -75,6 +86,8 @@ class MedidaViewSet(viewsets.ModelViewSet):
             return MedidaListSerializer
         elif self.action == 'create':
             return MedidaSerializer
+        elif self.action == 'registrar_avance':
+            return RegistroAvanceSerializer
         return MedidaDetailSerializer
 
     def get_permissions(self):
@@ -85,6 +98,16 @@ class MedidaViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsPublicEndpoint]
         return [permission() for permission in permission_classes]
+    
+    def destroy(self, instance, *args, **kwargs):
+        """Desactivar una Medida: Cambiar el estado de una medida a Inactivo en lugar de borrar."""
+        instance = self.get_object()
+        instance.activo = False
+        instance.save()
+        
+        # Log the delete action
+        LogMedida.objects.create(usuario=self.request.user, medida=instance, accion="eliminar")
+        return Response({"message": "Medida deactivada en lugar de eliminar."}, status=status.HTTP_204_NO_CONTENT)
 
     @extend_schema(
         description="Obtener los avances de una medida específica",
@@ -100,25 +123,18 @@ class MedidaViewSet(viewsets.ModelViewSet):
         serializer = RegistroAvanceSerializer(avances, many=True)
         return Response(serializer.data)
 
-    @extend_schema(
-        description="Registrar un nuevo avance para esta medida",
-        request=RegistroAvanceSerializer,
-        responses={
-            201: RegistroAvanceSerializer,
-            403: OpenApiResponse(description="El organismo del usuario no está asignado a esta medida"),
-            400: OpenApiResponse(description="Datos inválidos")
-        }
-    )
     @action(detail=True, methods=['post'], permission_classes=[IsOrganismoMember])
     def registrar_avance(self, request, pk=None):
         """
         Registrar un nuevo avance para esta medida.
         """
         medida = self.get_object()
-
+        
         # Verificar que el organismo del usuario esté asignado a esta medida
+        # TODO: Revisar porque esta tomando el usuario de django admin al utilizar swagger.
+        # Esto solo ocurre cuando estas logueado en Django admin...
         user = request.user
-        if not medida.responsables.filter(id=user.organismo.id).exists():
+        if not medida.responsables.filter(id=user.organismo_id).exists():
             return Response(
                 {"detail": "Tu organismo no está asignado a esta medida"},
                 status=status.HTTP_403_FORBIDDEN
@@ -204,4 +220,7 @@ class RegistroAvanceViewSet(viewsets.ModelViewSet):
             created_by=self.request.user,
             organismo=self.request.user.organismo,
             medida=medida
+
         )
+        
+
