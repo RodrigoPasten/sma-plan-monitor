@@ -70,6 +70,15 @@ class ReporteGeneradoViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAdminSMA | IsSuperAdmin]
         return [permission() for permission in permission_classes]
+    
+    def destroy(self, request, *args, **kwargs):
+        """Desactivar un Reporte: Cambiar el estado de un reporte a Inactivo en lugar de borrar."""
+        instance = self.get_object()
+        instance.activo = False
+        instance.save()
+        
+        return Response({"message":"Reporte desactivado con éxito."},
+                        status=status.HTTP_204_NO_CONTENT)
 
     def perform_create(self, serializer):
         serializer.save(
