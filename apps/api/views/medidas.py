@@ -220,4 +220,7 @@ class RegistroAvanceViewSet(viewsets.ModelViewSet):
             created_by=self.request.user,
             organismo=self.request.user.organismo,
             medida=medida
+
         )
+        
+

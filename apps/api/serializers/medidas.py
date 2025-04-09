@@ -22,7 +22,10 @@ class RegistroAvanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RegistroAvance
-        fields = ['id', 'medida_id', 'fecha_registro', 'porcentaje_avance', 'descripcion',
+
+      
+        fields = ['id', 'medidas', 'fecha_registro', 'porcentaje_avance', 'descripcion',
+
                   'evidencia', 'organismo', 'created_at']
         read_only_fields = ['created_at', 'created_by']
 
