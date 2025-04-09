@@ -200,9 +200,17 @@ JAZZMIN_SETTINGS = {
         "medidas.asignacionmedida": "fas fa-ruler-combined",
         "auditorias.configuracionauditoria": "fas fa-cogs",
         "medidas.componente": "fas fa-cogs",
-        "notificaciones.configuracionnotificaciones": "fas fa-bell-slash"
-
-
+        "notificaciones.configuracionnotificaciones": "fas fa-bell-slash",
+        "auth.group": "fas fa-users-cog",
+        "reportes.visualizacion": "fas fa-eye",
+        "reportes.parametroreporte": "fas fa-sliders-h",
+        "notificaciones.tiponotificacion": "fas fa-bell",
+        "notificaciones.recordatorio": "fas fa-clock",
+        "reportes.visualizacion": "fas fa-chart-pie",
+        "reportes.parametroreporte": "fas fa-sliders-h",
+        "auth.group": "fas fa-users-cog",
+        "organismos.tipoorganismo": "fas fa-sitemap",
+        "reportes.reportegenerado": "fas fa-file-export"
 
     },
 
