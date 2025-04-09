@@ -22,10 +22,14 @@ class RegistroAvanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RegistroAvance
+<<<<<<< Updated upstream
 
       
         fields = ['id', 'medidas', 'fecha_registro', 'porcentaje_avance', 'descripcion',
 
+=======
+        fields = ['id', 'fecha_registro', 'porcentaje_avance', 'descripcion',
+>>>>>>> Stashed changes
                   'evidencia', 'organismo', 'created_at']
         read_only_fields = ['created_at', 'created_by']
 

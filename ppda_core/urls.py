@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,10 +28,20 @@ urlpatterns = [
     path('medidas/', include('apps.medidas.urls')),
     # path('organismos/', include('apps.organismos.urls')),
     #path('usuarios/', include('apps.usuarios.urls')),
-    # path('reportes/', include('apps.reportes.urls')),
+    path('reportes/', include('apps.reportes.urls')),
     # path('notificaciones/', include('apps.notificaciones.urls')),
     # path('auditorias/', include('apps.auditorias.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
+    #path('accounts/', include('django.contrib.auth.urls')),
+    # URLs de autenticación explícitas
+    path('login/', auth_views.LoginView.as_view(), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logged_out.html'), name='logout'),
+    # Recuperar contraseña
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+
+
     # El portal público se mapea a la raíz del sitio
     path('', include('apps.publico.urls')),
 ]

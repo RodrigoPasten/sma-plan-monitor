@@ -1,9 +1,14 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+<<<<<<< Updated upstream
 from drf_spectacular import serializers
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, inline_serializer
+=======
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, OpenApiExample
+>>>>>>> Stashed changes
 from ..filters import MedidaFilter, RegistroAvanceFilter
 from apps.medidas.models import Componente, Medida, RegistroAvance
 from ..serializers.medidas import (
@@ -21,6 +26,8 @@ from ..permissions import (
 )
 from apps.medidas.serializers import MedidaSerializer
 from apps.medidas.models import LogMedida
+
+from ..renderers import MedidaCSVRenderer, RegistroAvanceCSVRenderer
 
 
 @extend_schema_view(
@@ -55,6 +62,90 @@ class ComponenteViewSet(viewsets.ReadOnlyModelViewSet):
         }
     )
 )
+
+
+@extend_schema_view(
+    list=extend_schema(
+        description="Obtiene la lista de medidas con posibilidad de filtrado.",
+        parameters=[
+            OpenApiParameter(
+                name="codigo_contains",
+                description="Filtrar por código (búsqueda parcial)",
+                required=False,
+                type=str
+            ),
+            OpenApiParameter(
+                name="avance_min",
+                description="Porcentaje mínimo de avance",
+                required=False,
+                type=float
+            ),
+            OpenApiParameter(
+                name="retrasada",
+                description="Filtrar medidas retrasadas (true/false)",
+                required=False,
+                type=bool
+            ),
+        ],
+        examples=[
+            OpenApiExample(
+                'Ejemplo de respuesta',
+                value=[
+                    {
+                        "id": 1,
+                        "codigo": "MED-001",
+                        "nombre": "Instalación de red de monitoreo",
+                        "componente_nombre": "Calidad del Aire",
+                        "estado": "en_proceso",
+                        "porcentaje_avance": 65.0,
+                        "fecha_inicio": "2025-01-01",
+                        "fecha_termino": "2025-12-31"
+                    }
+                ]
+            )
+        ]
+    ),
+    retrieve=extend_schema(
+        description="Obtiene el detalle de una medida específica por ID.",
+        examples=[
+            OpenApiExample(
+                'Ejemplo de respuesta detallada',
+                value={
+                    "id": 1,
+                    "codigo": "MED-001",
+                    "nombre": "Instalación de red de monitoreo",
+                    "descripcion": "Instalación de una red de monitoreo de calidad del aire...",
+                    "componente": 1,
+                    "componente_nombre": "Calidad del Aire",
+                    "fecha_inicio": "2025-01-01",
+                    "fecha_termino": "2025-12-31",
+                    "estado": "en_proceso",
+                    "prioridad": "alta",
+                    "porcentaje_avance": 65.0,
+                    "asignaciones": [
+                        {
+                            "id": 1,
+                            "organismo": 1,
+                            "organismo_nombre": "Ministerio del Medio Ambiente",
+                            "es_coordinador": True,
+                            "descripcion_responsabilidad": "Coordinación general del proyecto"
+                        }
+                    ],
+                    "registros_recientes": [
+                        {
+                            "id": 1,
+                            "fecha_registro": "2025-03-15",
+                            "porcentaje_avance": 65.0,
+                            "descripcion": "Se han instalado 6 de las 10 estaciones planificadas",
+                            "organismo_nombre": "Ministerio del Medio Ambiente"
+                        }
+                    ]
+                }
+            )
+        ]
+    )
+)
+
 class MedidaViewSet(viewsets.ModelViewSet):
     """
     API endpoint para consultar y gestionar medidas.
@@ -64,6 +155,7 @@ class MedidaViewSet(viewsets.ModelViewSet):
     filterset_fields = ['componente', 'estado', 'prioridad']
     search_fields = ['codigo', 'nombre', 'descripcion']
     filterset_class = MedidaFilter
+    renderer_classes = [JSONRenderer, BrowsableAPIRenderer, MedidaCSVRenderer]
 
     def get_queryset(self):
         user = self.request.user
@@ -173,6 +265,7 @@ class RegistroAvanceViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['medida', 'organismo', 'fecha_registro']
     filterset_class = RegistroAvanceFilter
+    renderer_classes = [JSONRenderer, BrowsableAPIRenderer, RegistroAvanceCSVRenderer]
 
     def get_queryset(self):
         user = self.request.user
