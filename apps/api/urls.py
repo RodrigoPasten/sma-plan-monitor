@@ -3,11 +3,13 @@ from rest_framework.routers import DefaultRouter
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from rest_framework import permissions
+from rest_framework.permissions import AllowAny
 
 from .views.organismos import OrganismoViewSet, TipoOrganismoViewSet
 from .views.medidas import ComponenteViewSet, MedidaViewSet, RegistroAvanceViewSet
 from .views.dashboard import DashboardView
+
+from .views.auth import CustomAuthToken, LogoutView
 
 # Pendiente por la app Reporte
 from .views.reportes import TipoReporteViewSet, ReporteGeneradoViewSet
@@ -23,9 +25,8 @@ schema_view = get_schema_view(
         license=openapi.License(name="License ... algo"),
     ),
     public=True,
-    permission_classes=[permissions.AllowAny],
+    permission_classes=(AllowAny,),
 )
-
 # Configuración del router para las vistas basadas en viewsets
 router = DefaultRouter()
 router.register(r'organismos', OrganismoViewSet)
@@ -56,7 +57,8 @@ urlpatterns = [
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
 
     # Autenticación
-    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('auth/token/', CustomAuthToken.as_view(), name='api-token'),
+    path('auth/logout/', LogoutView.as_view(), name='api-logout'),
 ]
 
 
