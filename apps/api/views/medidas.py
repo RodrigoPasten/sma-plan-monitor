@@ -4,22 +4,16 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
-from drf_spectacular import serializers
-
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
     OpenApiParameter,
     OpenApiResponse,
-    inline_serializer,
+    OpenApiExample
 )
 
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, inline_serializer
-
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, OpenApiExample
-
 from ..filters import MedidaFilter, RegistroAvanceFilter
-from apps.medidas.models import Componente, Medida, RegistroAvance
+from apps.medidas.models import Componente, Medida, RegistroAvance, LogMedida
 from ..serializers.medidas import (
     ComponenteSerializer,
     MedidaListSerializer,
@@ -35,7 +29,6 @@ from ..permissions import (
     IsOrganismoOwner,
 )
 from apps.medidas.serializers import MedidaSerializer
-from apps.medidas.models import LogMedida
 
 from ..renderers import MedidaCSVRenderer, RegistroAvanceCSVRenderer
 
