@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
     'corsheaders',
+    'rest_framework.authtoken',
 
 
 
@@ -142,8 +143,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',  # Solo Token
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
@@ -154,7 +154,6 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
-
 # Configuración de drf-spectacular
 SPECTACULAR_SETTINGS = {
     'TITLE': 'API Plan de Descontaminación',
@@ -166,7 +165,25 @@ SPECTACULAR_SETTINGS = {
         'deepLinking': True,
         'displayOperationId': True,
         'persistAuthorization': True,
+    },
+    'SECURITY': [{'Bearer': []}],
+    'SCHEMAS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',  # Nombre del campo para el token
+        }
     }
+}
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'Formato: Token <tu_token>'
+        }
+    },
 }
 
 
