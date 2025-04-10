@@ -26,7 +26,7 @@ class MedidaListSerializer(serializers.ModelSerializer):
         fields = ['id', 'codigo', 'nombre', 'componente', 'estado',
                   'porcentaje_avance', 'fecha_inicio', 'fecha_termino']
 
-        model = RegistroAvance
+
 
 
 class RegistroAvanceSerializer(serializers.ModelSerializer):
