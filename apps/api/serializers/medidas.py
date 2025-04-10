@@ -38,9 +38,6 @@ class RegistroAvanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = RegistroAvance
         
-        fields = ['fecha_registro', 'porcentaje_avance', 'descripcion',
-                  'evidencia', 'created_at']
-
 
         fields = ['id', 'fecha_registro', 'porcentaje_avance', 'descripcion',
                   'evidencia', 'organismo', 'created_at']
@@ -50,9 +47,21 @@ class RegistroAvanceSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Asignar el usuario actual como creador
         validated_data['created_by'] = self.context['request'].user
-        # Asignar el organismo del usuario si es usuario de organismo
-        if self.context['request'].user.is_organismo:
-            validated_data['organismo'] = self.context['request'].user.organismo
+
+        user = self.context['request'].user
+
+        # Verifica que el usuario esté autenticado y tiene un organismo asignado
+        if user.is_authenticated:
+            if user.is_organismo:  # Solo los usuarios de organismo pueden registrar avances
+                if hasattr(user, 'organismo') and user.organismo:
+                    validated_data['organismo'] = user.organismo
+                else:
+                    raise serializers.ValidationError("El usuario no tiene un organismo asignado.")
+            else:
+                raise serializers.ValidationError("El usuario no tiene permiso para registrar avances.")
+        else:
+            raise serializers.ValidationError("El usuario no está autenticado.")
+
         return super().create(validated_data)
 
 class MedidaDetailSerializer(serializers.ModelSerializer):
