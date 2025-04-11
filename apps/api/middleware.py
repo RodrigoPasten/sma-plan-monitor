@@ -62,3 +62,13 @@ class APILoggingMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip
+
+class TokenPrefixMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        if auth_header and 'Token ' not in auth_header:
+            request.META['HTTP_AUTHORIZATION'] = f'Token {auth_header}'
+        return self.get_response(request)

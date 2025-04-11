@@ -28,7 +28,6 @@ dbport = os.getenv('DB_PORT')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-fm_+d@ez0qn033n9@1cz_#8(6mp3z^tn(yu*wdg59d!dg*4!a#'
 
@@ -58,8 +57,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework.authtoken',
 
-
-
 #aplicaciones (Revisar si todas son necesarias)
     'apps.api',
     'apps.auditorias',
@@ -80,8 +77,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'apps.usuarios.middleware.HistorialAccesoMiddleware',
-    'apps.api.middleware.APILoggingMiddleware',
+    #'apps.usuarios.middleware.HistorialAccesoMiddleware',
+    #'apps.api.middleware.APILoggingMiddleware',
+    'apps.api.middleware.TokenPrefixMiddleware'
 ]
 
 ROOT_URLCONF = 'ppda_core.urls'
@@ -144,6 +142,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',  # Solo Token
+        'rest_framework.authentication.SessionAuthentication',  # Useful for browsable API
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
@@ -153,6 +152,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    #'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
 }
 # Configuración de drf-spectacular
 SPECTACULAR_SETTINGS = {
@@ -184,6 +184,7 @@ SWAGGER_SETTINGS = {
             'description': 'Formato: Token <tu_token>'
         }
     },
+    'USE_SESSION_AUTH': False,  # Disable session auth if you only use tokens
 }
 
 

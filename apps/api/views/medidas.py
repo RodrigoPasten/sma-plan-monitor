@@ -2,6 +2,8 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
 
 from drf_spectacular.utils import (
@@ -32,6 +34,16 @@ from apps.medidas.serializers import MedidaSerializer
 
 from ..renderers import MedidaCSVRenderer, RegistroAvanceCSVRenderer
 
+# views.py
+from rest_framework.decorators import api_view
+
+@api_view(['GET'])
+def debug_auth(request):
+    return Response({
+        'authenticated': request.user.is_authenticated,
+        'user': str(request.user),
+        'auth_header': request.META.get('HTTP_AUTHORIZATION')
+    })
 
 @extend_schema_view(
     list=extend_schema(description="Listar todos los componentes del plan"),
@@ -160,7 +172,7 @@ class MedidaViewSet(viewsets.ModelViewSet):
     """
     API endpoint para consultar y gestionar medidas.
     """
-
+    authentication_classes = [TokenAuthentication]
     queryset = Medida.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["componente", "estado", "prioridad"]
