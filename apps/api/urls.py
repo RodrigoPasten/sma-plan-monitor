@@ -33,6 +33,8 @@ schema_view = get_schema_view(
     public=True,
     permission_classes=(AllowAny,),
 )
+
+app_name = 'api'
 # Configuración del router para las vistas basadas en viewsets
 router = DefaultRouter()
 router.register(r'organismos', OrganismoViewSet)
@@ -65,6 +67,7 @@ urlpatterns = [
     # Autenticación
     path('auth/token/', CustomAuthToken.as_view(), name='api-token'),
     path('auth/logout/', LogoutView.as_view(), name='api-logout'),
+    path('notificaciones/', include('apps.api.urls_notificaciones')),
 ]
 
 
