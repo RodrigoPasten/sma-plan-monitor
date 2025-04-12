@@ -1,9 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework.permissions import AllowAny
 
 from .views.organismos import OrganismoViewSet, TipoOrganismoViewSet
-from .views.medidas import ComponenteViewSet, MedidaViewSet, RegistroAvanceViewSet, debug_auth
+from .views.medidas import ComponenteViewSet, MedidaViewSet, RegistroAvanceViewSet
 from .views.dashboard import DashboardView
 
 from .views.auth import CustomAuthToken, LogoutView
@@ -15,7 +18,8 @@ from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg import openapi
 from rest_framework.permissions import AllowAny
 from drf_yasg.views import get_schema_view
-from rest_framework.authentication import TokenAuthentication
+from drf_yasg import openapi
+from rest_framework.permissions import AllowAny
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -28,7 +32,6 @@ schema_view = get_schema_view(
     ),
     public=True,
     permission_classes=(AllowAny,),
-    authentication_classes=[]
 )
 # Configuración del router para las vistas basadas en viewsets
 router = DefaultRouter()
@@ -62,8 +65,6 @@ urlpatterns = [
     # Autenticación
     path('auth/token/', CustomAuthToken.as_view(), name='api-token'),
     path('auth/logout/', LogoutView.as_view(), name='api-logout'),
-    
-    path('debug-auth/', debug_auth),
 ]
 
 
