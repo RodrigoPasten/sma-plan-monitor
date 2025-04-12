@@ -1,4 +1,3 @@
-# apps/publico/views.py
 from django.shortcuts import render
 from django.db.models import Avg, Count
 from apps.medidas.models import Componente, Medida

@@ -29,7 +29,6 @@ urlpatterns = [
     # path('organismos/', include('apps.organismos.urls')),
     #path('usuarios/', include('apps.usuarios.urls')),
     path('reportes/', include('apps.reportes.urls')),
-    # path('notificaciones/', include('apps.notificaciones.urls')),
     # path('auditorias/', include('apps.auditorias.urls')),
     #path('accounts/', include('django.contrib.auth.urls')),
     # URLs de autenticación explícitas
@@ -40,7 +39,7 @@ urlpatterns = [
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-
+    path('notificaciones/', include('apps.notificaciones.urls')),
 
     # El portal público se mapea a la raíz del sitio
     path('', include('apps.publico.urls')),

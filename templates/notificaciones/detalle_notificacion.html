@@ -1,0 +1,53 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ notificacion.titulo }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'notificaciones:lista' %}">{% trans "Notificaciones" %}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ notificacion.titulo|truncatechars:30 }}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ notificacion.titulo }}</h5>
+            <span class="badge badge-{{ notificacion.tipo.color|default:'secondary' }}">{{ notificacion.tipo.nombre }}</span>
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ notificacion.mensaje|linebreaks }}</p>
+
+            {% if notificacion.enlace %}
+            <a href="{{ notificacion.enlace }}" class="btn btn-primary">
+                {% trans "Ver más detalles" %}
+            </a>
+            {% endif %}
+        </div>
+        <div class="card-footer text-muted">
+            <div class="row">
+                <div class="col-md-6">
+                    {% trans "Enviada" %}: {{ notificacion.fecha_envio|date:"d/m/Y H:i" }}
+                </div>
+                <div class="col-md-6 text-md-right">
+                    {% if notificacion.leida %}
+                        {% trans "Leída" %}: {{ notificacion.fecha_lectura|date:"d/m/Y H:i" }}
+                    {% else %}
+                        {% trans "No leída" %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="{% url 'notificaciones:lista' %}" class="btn btn-outline-secondary">
+            {% trans "Volver a la lista" %}
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,9 +1,9 @@
+<!-- templates/notificaciones/email/notificacion.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ titulo }}</title>
+    <title>{{ notificacion.titulo }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,60 +15,58 @@
         .container {
             max-width: 600px;
             margin: 0 auto;
-            padding: a20px;
+            padding: 20px;
         }
         .header {
-            background-color: {{ color }};
+            background-color: #2c3e50;
             color: white;
-            padding: 20px;
-            text-align: center;
+            padding: 10px 20px;
             border-radius: 5px 5px 0 0;
         }
         .content {
-            padding: 20px;
             background-color: #f9f9f9;
+            padding: 20px;
             border: 1px solid #ddd;
             border-top: none;
             border-radius: 0 0 5px 5px;
         }
-        .button {
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+        .btn {
             display: inline-block;
             padding: 10px 20px;
-            margin: 20px 0;
-            background-color: {{ color }};
+            background-color: #3498db;
             color: white;
             text-decoration: none;
             border-radius: 5px;
-            font-weight: bold;
-        }
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #777;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>{{ titulo }}</h1>
+            <h2>{{ app_name }}</h2>
         </div>
         <div class="content">
-            <p>Hola {{ usuario.get_full_name|default:usuario.username }},</p>
+            <h3>{{ notificacion.titulo }}</h3>
+            <p>Hola {{ usuario.first_name|default:usuario.username }},</p>
 
-            <p>{{ mensaje }}</p>
+            <p>{{ notificacion.mensaje }}</p>
 
-            {% if enlace %}
-            <div style="text-align: center;">
-                <a href="{{ enlace }}" class="button">Ver detalles</a>
-            </div>
+            {% if notificacion.enlace %}
+            <p>
+                <a href="{{ site_url }}{{ notificacion.enlace }}" class="btn">Ver detalles</a>
+            </p>
             {% endif %}
-
-            <p>Gracias,<br>Sistema de Monitoreo del Plan de Descontaminación</p>
         </div>
         <div class="footer">
-            <p>Este email fue enviado automáticamente. Por favor no responda a este mensaje.</p>
+            <p>Esta es una notificación automática del sistema {{ app_name }}.</p>
+            <p>Si no desea recibir estas notificaciones, puede modificar su configuración desde su perfil de usuario.</p>
         </div>
     </div>
 </body>

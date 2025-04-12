@@ -1,46 +1,41 @@
 from django.contrib import admin
-
-# apps/notificaciones/admin.py
-from django.contrib import admin
-from .models import TipoNotificacion, Notificacion, ConfiguracionNotificaciones, Recordatorio
+from django.utils.translation import gettext_lazy as _
+from .models import TipoNotificacion, Notificacion
 
 
 @admin.register(TipoNotificacion)
 class TipoNotificacionAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'codigo', 'para_superadmin', 'para_admin_sma',
-                    'para_organismos', 'para_ciudadanos', 'activo')
-    list_filter = ('activo', 'para_superadmin', 'para_admin_sma',
-                   'para_organismos', 'para_ciudadanos')
-    search_fields = ('nombre', 'descripcion', 'codigo')
+    list_display = ('nombre', 'descripcion', 'icono', 'color')
+    search_fields = ('nombre', 'descripcion')
+    list_filter = ('created_at',)
 
 
 @admin.register(Notificacion)
 class NotificacionAdmin(admin.ModelAdmin):
-    list_display = ('tipo', 'usuario', 'titulo', 'fecha_envio', 'leida', 'enviada_email')
-    list_filter = ('tipo', 'leida', 'enviada_email')
-    search_fields = ('titulo', 'mensaje', 'usuario__username', 'tipo__nombre')
+    list_display = ('titulo', 'tipo', 'usuario', 'fecha_envio', 'leida', 'prioridad')
+    list_filter = ('tipo', 'leida', 'prioridad', 'fecha_envio')
+    search_fields = ('titulo', 'mensaje', 'usuario__username', 'usuario__email')
     date_hierarchy = 'fecha_envio'
-    readonly_fields = ('fecha_envio', 'fecha_lectura', 'fecha_envio_email')
+    readonly_fields = ('fecha_envio', 'fecha_lectura')
 
+    actions = ['marcar_como_leidas', 'marcar_como_no_leidas']
 
-@admin.register(ConfiguracionNotificaciones)
-class ConfiguracionNotificacionesAdmin(admin.ModelAdmin):
-    list_display = ('usuario', 'recibir_email', 'recibir_sistema', 'frecuencia_email')
-    list_filter = ('recibir_email', 'recibir_sistema', 'frecuencia_email')
-    search_fields = ('usuario__username',)
-    filter_horizontal = ('tipos_habilitados',)
+    def marcar_como_leidas(self, request, queryset):
+        from django.utils import timezone
 
+        updated = queryset.update(leida=True, fecha_lectura=timezone.now())
+        self.message_user(
+            request,
+            _(f"{updated} notificación(es) marcada(s) como leída(s)."),
+        )
 
-@admin.register(Recordatorio)
-class RecordatorioAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'usuario', 'organismo', 'fecha_programada',
-                    'estado', 'repeticion', 'created_by')
-    list_filter = ('estado', 'repeticion')
-    search_fields = ('titulo', 'descripcion', 'usuario__username', 'organismo__nombre')
-    date_hierarchy = 'fecha_programada'
-    readonly_fields = ('created_by', 'fecha_enviado')
+    marcar_como_leidas.short_description = _("Marcar notificaciones seleccionadas como leídas")
 
-    def save_model(self, request, obj, form, change):
-        if not obj.created_by:
-            obj.created_by = request.user
-        super().save_model(request, obj, form, change)
+    def marcar_como_no_leidas(self, request, queryset):
+        updated = queryset.update(leida=False, fecha_lectura=None)
+        self.message_user(
+            request,
+            _(f"{updated} notificación(es) marcada(s) como no leída(s)."),
+        )
+
+    marcar_como_no_leidas.short_description = _("Marcar notificaciones seleccionadas como no leídas")
