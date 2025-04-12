@@ -53,6 +53,24 @@ pip install -r requirements.txt
 ```
 
 ### 4. Configurar la base de datos PostgreSQL
+
+
+````bash
+# Crear la base de datos
+createdb plan_descontaminacion
+
+# Configurar credenciales en .env
+
+Crear un archivo llamado `.env` en la raíz del proyecto con el siguiente contenido:
+
+DB_NAME=plan_descontaminacion
+DB_USER=tu_usuario
+DB_PASSWORD=tu_contraseña
+DB_HOST=localhost
+DB_PORT=5432
+
+Reemplazar los valores con tus credenciales.
+=======
 ```bash
 # Crear la base de datos
 createdb plan_descontaminacion
@@ -66,7 +84,7 @@ cp .env.example .env
 
 ```bash
 python manage.py migrate
-```
+````
 
 ### 6. Crear superusuario
 
@@ -80,7 +98,11 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-La aplicación estará disponible en [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+La aplicación estará disponible en 
+- [http://127.0.0.1:8000/](http://127.0.0.1:8000/) -> Para acceder al front
+- [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/) -> Acceder a la interfaz de DRF(API)
+- [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/asmin/) -> Para acceder al DRF Admin
+- [http://127.0.0.1:8000/api/v1/swagger/](http://127.0.0.1:8000/api/v1/swagger/) -> Para acceder a la API mediante Swagger
 
 ## 🏗️ Estructura del Proyecto
 
@@ -105,21 +127,25 @@ sma_monitor/
 ## 🧩 Modelos Principales
 
 ### Organismos
+
 - **TipoOrganismo**: Categorías de organismos participantes
 - **Organismo**: Entidades responsables de implementar medidas
 - **ContactoOrganismo**: Personas de contacto de cada organismo
 
 ### Medidas
+
 - **Componente**: Áreas temáticas del plan de descontaminación
 - **Medida**: Acciones específicas del plan
 - **AsignacionMedida**: Relación entre medidas y organismos responsables
 - **RegistroAvance**: Seguimiento del avance de cada medida
 
 ### Usuarios
+
 - **Usuario**: Extensión del modelo User de Django con roles específicos
 - **Perfil**: Información adicional del usuario
 
 ### Reportes
+
 - **TipoReporte**: Definición de reportes disponibles
 - **ReporteGenerado**: Instancias de reportes generados
 
@@ -128,11 +154,13 @@ sma_monitor/
 La API del sistema permite la integración con otras aplicaciones y el consumo de datos desde el frontend.
 
 ### Documentación
+
 - Swagger UI: `/api/swagger/`
 - ReDoc: `/api/redoc/`
 - Esquema OpenAPI: `/api/schema/`
 
 ### Endpoints principales
+
 - `/api/organismos/`: Gestión de organismos
 - `/api/medidas/`: Administración de medidas
 - `/api/registros-avance/`: Registro de avances
@@ -142,23 +170,33 @@ La API del sistema permite la integración con otras aplicaciones y el consumo d
 ## 👥 Perfiles de Usuario
 
 ### Superadmin
+
 - Acceso completo al sistema
 - Configuración técnica
 - Gestión de usuarios y permisos
 
 ### Admin SMA
+
 - Gestión de medidas y componentes
 - Seguimiento de avances
 - Validación de datos
 
 ### Organismos
+
 - Registro de avances en medidas asignadas
 - Visualización de sus medidas y plazos
 - Consulta de reportes específicos
 
 ### Ciudadanos
+
 - Visualización del avance general del plan
 - Consulta de información pública
+
+## 📚 Historias de Usuario
+
+Puedes revisar el tablero Kanban del proyecto con todas las historias de usuario y su estado actual:
+
+🔗 [Ver Tablero en Taiga](https://tree.taiga.io/project/natalitarivera-curso-python-grupo-5/kanban)
 
 ## 🧪 Testing
 

@@ -21,8 +21,6 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework.permissions import AllowAny
 
-app_name = 'api'
-
 schema_view = get_schema_view(
     openapi.Info(
         title="API Plan de Descontaminación",
@@ -67,9 +65,6 @@ urlpatterns = [
     # Autenticación
     path('auth/token/', CustomAuthToken.as_view(), name='api-token'),
     path('auth/logout/', LogoutView.as_view(), name='api-logout'),
-
-    # notificaciones
-    path('notificaciones/', include('apps.api.urls_notificaciones')),
 ]
 
 

@@ -97,7 +97,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'apps.notificaciones.context_processors.notificaciones_context',
             ],
         },
     },
@@ -140,11 +139,11 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # Solo Token
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
@@ -155,24 +154,27 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
-
-CSRF_COOKIE_SECURE = False
-CSRF_COOKIE_HTTPONLY = False
 # Configuración de drf-spectacular
-# SPECTACULAR_SETTINGS = {
-#     'TITLE': 'API Plan de Descontaminación',
-#     'DESCRIPTION': 'API para el sistema de monitoreo del Plan de Descontaminación',
-#     'VERSION': 'v1',
-#     'SECURITY': [{'Token': []}],
-#     'SECURITY_DEFINITIONS': {
-#         'Token': {
-#             'type': 'apiKey',
-#             'in': 'header',
-#             'name': 'Authorization',
-#             'description': 'Token prefijo: "Token "',
-#         }
-#     }
-# }
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API Plan de Descontaminación',
+    'DESCRIPTION': 'API para el sistema de monitoreo del Plan de Descontaminación',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'displayOperationId': True,
+        'persistAuthorization': True,
+    },
+    'SECURITY': [{'Bearer': []}],
+    'SCHEMAS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',  # Nombre del campo para el token
+        }
+    }
+}
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Token': {

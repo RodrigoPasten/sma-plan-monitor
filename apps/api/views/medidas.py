@@ -2,24 +2,20 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
-
-from drf_spectacular import serializers
 
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
     OpenApiParameter,
     OpenApiResponse,
-    inline_serializer,
+    OpenApiExample
 )
 
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, inline_serializer
-
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, OpenApiExample
-
 from ..filters import MedidaFilter, RegistroAvanceFilter
-from apps.medidas.models import Componente, Medida, RegistroAvance
+from apps.medidas.models import Componente, Medida, RegistroAvance, LogMedida
 from ..serializers.medidas import (
     ComponenteSerializer,
     MedidaListSerializer,
@@ -35,10 +31,19 @@ from ..permissions import (
     IsOrganismoOwner,
 )
 from apps.medidas.serializers import MedidaSerializer
-from apps.medidas.models import LogMedida
 
 from ..renderers import MedidaCSVRenderer, RegistroAvanceCSVRenderer
 
+# views.py
+from rest_framework.decorators import api_view
+
+@api_view(['GET'])
+def debug_auth(request):
+    return Response({
+        'authenticated': request.user.is_authenticated,
+        'user': str(request.user),
+        'auth_header': request.META.get('HTTP_AUTHORIZATION')
+    })
 
 @extend_schema_view(
     list=extend_schema(description="Listar todos los componentes del plan"),
@@ -167,7 +172,7 @@ class MedidaViewSet(viewsets.ModelViewSet):
     """
     API endpoint para consultar y gestionar medidas.
     """
-
+    authentication_classes = [TokenAuthentication]
     queryset = Medida.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["componente", "estado", "prioridad"]
