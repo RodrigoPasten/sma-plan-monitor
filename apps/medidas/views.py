@@ -1,24 +1,21 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Medida, LogMedida
+#Models
+from apps.organismos.models import Organismo
+from .models import Medida, LogMedida, Componente, RegistroAvance
+#Serializer
 from .serializers import MedidaSerializer
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg, Count, Sum, Q
+from django.db.models import Avg, Count
 from django.utils import timezone
 from datetime import timedelta
 
-from .models import Componente, Medida, RegistroAvance
-from apps.organismos.models import Organismo
-
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from .forms import RegistroAvanceForm
-from .models import Medida
 
 
 # Create your views here.

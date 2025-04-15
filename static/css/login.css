@@ -1,0 +1,82 @@
+.login-page {
+    background-color: #06828a;
+    background: linear-gradient(to bottom right, #06828a, #04b4c0);
+    min-height: 100vh;
+    padding-top: 50px;
+}
+
+.login-page .card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.login-page .btn-primary {
+    background-color: #06828a;
+    border-color: #057a82;
+}
+
+.login-page .btn-primary:hover {
+    background-color: #057a82;
+}
+
+/* static/css/login.css */
+
+body.login-page nav.header-nav {
+    display: none !important;
+}
+
+.login-page {
+    display: flex;
+    background-color: #06828a;
+    background: linear-gradient(135deg, #06828a, #04b4c0);
+    min-height: 100vh;
+    align-items: center;
+    padding-top: 50px;
+}
+
+body.login-page > .container {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.login-page .container {
+    width: 100%;
+    height: 50vh;
+    align-items: center;
+}
+
+.login-page .card {
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border: none;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.login-page .card-header {
+    background-color: #06828a;
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.login-page .btn-primary {
+    background-color: #06828a;
+    border-color: #057a82;
+    width: 100%;
+}
+
+.login-page .btn-primary:hover {
+    background-color: #057a82;
+}
+
+.login-page a {
+    color: #06828a;
+    text-decoration: none;
+}
+
+.login-page a:hover {
+    text-decoration: underline;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(20px);}
+    to { opacity: 1; transform: translate(0);}    
+}

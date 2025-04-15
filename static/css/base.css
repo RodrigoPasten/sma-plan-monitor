@@ -1,0 +1,49 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --primary-color: #06828a;
+    --secondary-color: #06828a;
+}
+
+body {
+    margin: 0;
+}
+
+.header-nav {
+    background-color: var(--primary-color);
+    height: 8vh;
+}
+
+.py-5 {
+    padding-right: 2rem;
+    padding-left: 2rem;
+}
+
+/* Moved from base.html */
+.navbar-nav {
+    display: flex;
+    align-items: center;
+}
+
+.nav-item form {
+    display: inline-block;
+    margin-bottom: 0;
+}
+
+.nav-item button {
+    padding: 8px 15px;
+    border: none;
+    background-color: transparent;
+    color: white;
+}
+
+.nav-item button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.footer {
+    width: 100%;
+}
