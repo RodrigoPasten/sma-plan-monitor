@@ -15,11 +15,11 @@ from .views.auth import CustomAuthToken, LogoutView
 from .views.reportes import TipoReporteViewSet, ReporteGeneradoViewSet
 
 from rest_framework.authtoken.views import obtain_auth_token
-from drf_yasg import openapi
 from rest_framework.permissions import AllowAny
+from rest_framework.authentication import TokenAuthentication
+
+from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-from rest_framework.permissions import AllowAny
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -40,10 +40,6 @@ router.register(r'tipos-organismo', TipoOrganismoViewSet)
 router.register(r'componentes', ComponenteViewSet)
 router.register(r'medidas', MedidaViewSet)
 router.register(r'registros-avance', RegistroAvanceViewSet)
-
-
-
-
 router.register(r'tipos-reporte', TipoReporteViewSet)
 router.register(r'reportes', ReporteGeneradoViewSet, basename='reportes')
 
@@ -65,6 +61,7 @@ urlpatterns = [
     # Autenticación
     path('auth/token/', CustomAuthToken.as_view(), name='api-token'),
     path('auth/logout/', LogoutView.as_view(), name='api-logout'),
+    #path('debug-auth/', debug_auth),
 ]
 
 
