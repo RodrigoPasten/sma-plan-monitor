@@ -1,274 +1,135 @@
+
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.db.models import Avg, Count, Q
-from django.utils import timezone
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, DetailView, View
+from django.http import HttpResponse, JsonResponse
+from django.urls import reverse
+from django.contrib import messages
+from django.utils.translation import gettext_lazy as _
 
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-
-from apps.medidas.models import Medida, Componente, RegistroAvance
+from .models import TipoReporte, ReporteGenerado
+from .services import ReporteService
+from apps.organismos.models import Organismo
+from apps.medidas.models import Componente
 
 
-@login_required
-def reporte_avance_global(request):
-    """Vista para generar reporte de avance global del plan"""
-    # Obtener parámetros del reporte
-    formato = request.GET.get('formato', 'web')  # web, pdf, excel
+class ReporteListView(LoginRequiredMixin, ListView):
+    """Vista para listar los tipos de reportes disponibles"""
+    model = TipoReporte
+    template_name = 'reportes/lista_tipos.html'
+    context_object_name = 'tipos_reporte'
 
-    # Calcular datos para el reporte
-    total_medidas = Medida.objects.count()
-    avance_global = Medida.objects.aggregate(promedio=Avg('porcentaje_avance'))['promedio'] or 0
+    def get_queryset(self):
+        # Filtrar tipos de reporte según el rol del usuario
+        queryset = TipoReporte.objects.all()
 
-    # Avance por componente
-    componentes = Componente.objects.annotate(
-        total_medidas=Count('medidas'),
-        avance=Avg('medidas__porcentaje_avance')
-    ).order_by('nombre')
+        if self.request.user.rol == 'superadmin':
+            queryset = queryset.filter(acceso_superadmin=True)
+        elif self.request.user.rol == 'admin_sma':
+            queryset = queryset.filter(acceso_admin_sma=True)
+        elif self.request.user.rol == 'organismo':
+            queryset = queryset.filter(acceso_organismos=True)
+        else:
+            queryset = queryset.none()
 
-    # Avance por estado
-    estados = Medida.objects.values('estado').annotate(
-        total=Count('id'),
-        avance_promedio=Avg('porcentaje_avance')
-    ).order_by('estado')
+        return queryset
 
-    # Si el formato es PDF, generar el PDF
-    if formato == 'pdf':
-        # Crear el documento PDF
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="reporte_avance_global.pdf"'
 
-        doc = SimpleDocTemplate(response, pagesize=letter)
-        elements = []
+class MisReportesListView(LoginRequiredMixin, ListView):
+    """Vista para listar los reportes generados por el usuario"""
+    model = ReporteGenerado
+    template_name = 'reportes/mis_reportes.html'
+    context_object_name = 'reportes'
+    paginate_by = 10
 
-        # Estilos
-        styles = getSampleStyleSheet()
-        title_style = styles['Heading1']
-        subtitle_style = styles['Heading2']
-        normal_style = styles['Normal']
-
-        # Título del reporte
-        elements.append(Paragraph("Reporte de Avance Global", title_style))
-        elements.append(Paragraph(f"Fecha: {timezone.now().strftime('%d/%m/%Y')}", normal_style))
-        elements.append(Spacer(1, 0.5 * inch))
-
-        # Resumen general
-        elements.append(Paragraph("Resumen General", subtitle_style))
-        data = [
-            ["Total de Medidas", str(total_medidas)],
-            ["Avance Global", f"{avance_global:.1f}%"]
-        ]
-        t = Table(data, colWidths=[3 * inch, 1.5 * inch])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (0, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        elements.append(t)
-        elements.append(Spacer(1, 0.3 * inch))
-
-        # Avance por componente
-        elements.append(Paragraph("Avance por Componente", subtitle_style))
-        data = [["Componente", "Total Medidas", "Avance"]]
-        for comp in componentes:
-            data.append([
-                comp.nombre,
-                str(comp.total_medidas),
-                f"{comp.avance or 0:.1f}%"
-            ])
-        t = Table(data, colWidths=[3 * inch, 1.5 * inch, 1 * inch])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        elements.append(t)
-        elements.append(Spacer(1, 0.3 * inch))
-
-        # Avance por estado
-        elements.append(Paragraph("Estado de las Medidas", subtitle_style))
-        data = [["Estado", "Total", "Avance Promedio"]]
-        for est in estados:
-            data.append([
-                est['estado'].replace('_', ' ').title(),
-                str(est['total']),
-                f"{est['avance_promedio'] or 0:.1f}%"
-            ])
-        t = Table(data, colWidths=[2 * inch, 1.5 * inch, 2 * inch])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        elements.append(t)
-
-        # Construir el PDF
-        doc.build(elements)
-        return response
-
-    # Si el formato es web, renderizar la plantilla
-    return render(request, 'reportes/avance_global.html', {
-        'total_medidas': total_medidas,
-        'avance_global': avance_global,
-        'componentes': componentes,
-        'estados': estados,
-        'now': timezone.now()
-    })
+    def get_queryset(self):
+        # Mostrar solo los reportes del usuario actual
+        return ReporteGenerado.objects.filter(
+            usuario=self.request.user
+        ).order_by('-fecha_generacion')
 
 
 @login_required
-def reporte_avance_organismo(request, organismo_id=None):
-    """Vista para generar reporte de avance por organismo"""
-    from apps.organismos.models import Organismo
-
-    # Si no se especifica un organismo, usamos el del usuario actual
-    if organismo_id is None and hasattr(request.user, 'organismo') and request.user.organismo:
-        organismo_id = request.user.organismo.id
+def generar_reporte(request, tipo_id):
+    """Vista para generar un nuevo reporte"""
+    tipo_reporte = get_object_or_404(TipoReporte, pk=tipo_id)
 
     # Verificar permisos
-    if not (hasattr(request.user, 'is_superadmin') and request.user.is_superadmin or
-            hasattr(request.user, 'is_admin_sma') and request.user.is_admin_sma):
-        if not hasattr(request.user, 'organismo') or request.user.organismo.id != organismo_id:
-            return redirect('dashboard_sma')  # Redireccionar si no tiene permisos
+    if request.user.rol == 'organismo' and not tipo_reporte.acceso_organismos:
+        messages.error(request, _("No tienes permiso para generar este tipo de reporte."))
+        return redirect('reportes:lista_tipos')
+    elif request.user.rol == 'admin_sma' and not tipo_reporte.acceso_admin_sma:
+        messages.error(request, _("No tienes permiso para generar este tipo de reporte."))
+        return redirect('reportes:lista_tipos')
 
-    # Obtener el organismo
-    organismo = get_object_or_404(Organismo, id=organismo_id)
+    if request.method == 'POST':
+        # Procesar formulario
+        titulo = request.POST.get('titulo')
+        organismo_id = request.POST.get('organismo')
+        componente_id = request.POST.get('componente')
 
-    # Obtener parámetros del reporte
-    formato = request.GET.get('formato', 'web')  # web, pdf, excel
+        # Si es usuario de organismo, forzar su propio organismo
+        if request.user.rol == 'organismo':
+            organismo_id = request.user.organismo.id
 
-    # Obtener medidas asignadas al organismo
-    medidas = Medida.objects.filter(responsables=organismo)
+        # Generar el reporte
+        reporte = ReporteService.generar_reporte(
+            usuario=request.user,
+            tipo_reporte_id=tipo_id,
+            titulo=titulo,
+            organismo_id=organismo_id if organismo_id else None,
+            componente_id=componente_id if componente_id else None
+        )
 
-    # Calcular estadísticas
-    total_medidas = medidas.count()
-    avance_promedio = medidas.aggregate(promedio=Avg('porcentaje_avance'))['promedio'] or 0
+        if reporte:
+            messages.success(request, _("Reporte generado exitosamente."))
+            return redirect('reportes:detalle_reporte', pk=reporte.id)
+        else:
+            messages.error(request, _("Error al generar el reporte. Intente nuevamente."))
 
-    # Medidas por estado
-    estados = medidas.values('estado').annotate(
-        total=Count('id'),
-        avance_promedio=Avg('porcentaje_avance')
-    ).order_by('estado')
+    # Preparar datos para el formulario
+    context = {
+        'tipo_reporte': tipo_reporte,
+        'organismos': Organismo.objects.all() if request.user.rol != 'organismo' else None,
+        'componentes': Componente.objects.all(),
+    }
 
-    # Medidas por componente
-    componentes = Componente.objects.filter(medidas__in=medidas).distinct().annotate(
-        total_medidas=Count('medidas', filter=Q(medidas__in=medidas)),
-        avance=Avg('medidas__porcentaje_avance', filter=Q(medidas__in=medidas))
-    ).order_by('nombre')
+    return render(request, 'reportes/generar_reporte.html', context)
 
-    # Últimos registros de avance
-    registros_recientes = RegistroAvance.objects.filter(
-        organismo=organismo
-    ).order_by('-fecha_registro')[:10]
 
-    # Si el formato es PDF, generar el PDF
-    if formato == 'pdf':
-        # Crear el documento PDF
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="reporte_avance_{organismo.nombre}.pdf"'
+class ReporteDetailView(LoginRequiredMixin, DetailView):
+    """Vista para ver detalles de un reporte generado"""
+    model = ReporteGenerado
+    template_name = 'reportes/detalle_reporte.html'
+    context_object_name = 'reporte'
 
-        doc = SimpleDocTemplate(response, pagesize=letter)
-        elements = []
-
-        # Estilos
-        styles = getSampleStyleSheet()
-        title_style = styles['Heading1']
-        subtitle_style = styles['Heading2']
-        normal_style = styles['Normal']
-
-        # Título del reporte
-        elements.append(Paragraph(f"Reporte de Avance: {organismo.nombre}", title_style))
-        elements.append(Paragraph(f"Fecha: {timezone.now().strftime('%d/%m/%Y')}", normal_style))
-        elements.append(Spacer(1, 0.5 * inch))
-
-        # Resumen general
-        elements.append(Paragraph("Resumen General", subtitle_style))
-        data = [
-            ["Total de Medidas Asignadas", str(total_medidas)],
-            ["Avance Promedio", f"{avance_promedio:.1f}%"]
-        ]
-        t = Table(data, colWidths=[3 * inch, 1.5 * inch])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (0, -1), colors.black),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        elements.append(t)
-        elements.append(Spacer(1, 0.3 * inch))
-
-        # Medidas por estado
-        elements.append(Paragraph("Medidas por Estado", subtitle_style))
-        data = [["Estado", "Total", "Avance Promedio"]]
-        for est in estados:
-            data.append([
-                est['estado'].replace('_', ' ').title(),
-                str(est['total']),
-                f"{est['avance_promedio'] or 0:.1f}%"
-            ])
-        t = Table(data, colWidths=[2 * inch, 1.5 * inch, 2 * inch])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        elements.append(t)
-        elements.append(Spacer(1, 0.3 * inch))
-
-        # Avance por componente
-        elements.append(Paragraph("Avance por Componente", subtitle_style))
-        data = [["Componente", "Total Medidas", "Avance"]]
-        for comp in componentes:
-            data.append([
-                comp.nombre,
-                str(comp.total_medidas),
-                f"{comp.avance or 0:.1f}%"
-            ])
-        t = Table(data, colWidths=[3 * inch, 1.5 * inch, 1 * inch])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black)
-        ]))
-        elements.append(t)
-
-        # Construir el PDF
-        doc.build(elements)
-        return response
-
-    # Si el formato es web, renderizar la plantilla
-    return render(request, 'reportes/avance_organismo.html', {
-        'organismo': organismo,
-        'total_medidas': total_medidas,
-        'avance_promedio': avance_promedio,
-        'estados': estados,
-        'componentes': componentes,
-        'registros_recientes': registros_recientes,
-        'now': timezone.now()
-    })
+    def get_queryset(self):
+        # Un usuario solo puede ver sus propios reportes (excepto superadmin y admin_sma)
+        if self.request.user.rol in ['superadmin', 'admin_sma']:
+            return ReporteGenerado.objects.all()
+        return ReporteGenerado.objects.filter(usuario=self.request.user)
 
 
 @login_required
-def dashboard_interactivo(request):
-    """Vista para el dashboard interactivo"""
-    return render(request, 'reportes/dashboard_interactivo.html')
+def descargar_reporte(request, pk):
+    """Vista para descargar un reporte PDF"""
+    reporte = get_object_or_404(ReporteGenerado, pk=pk)
+
+    # Verificar permisos
+    if reporte.usuario != request.user and request.user.rol not in ['superadmin', 'admin_sma']:
+        messages.error(request, _("No tienes permiso para descargar este reporte."))
+        return redirect('reportes:mis_reportes')
+
+    # Verificar que el archivo exista
+    if not reporte.archivo:
+        messages.error(request, _("El archivo no está disponible."))
+        return redirect('reportes:detalle_reporte', pk=pk)
+
+    # Establecer el nombre del archivo para la descarga
+    filename = f"reporte_{reporte.tipo_reporte.tipo}_{reporte.id}.pdf"
+
+    response = HttpResponse(reporte.archivo.read(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    return response

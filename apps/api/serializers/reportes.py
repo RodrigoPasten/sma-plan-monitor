@@ -1,65 +1,66 @@
+# apps/api/serializers/reportes.py
 from rest_framework import serializers
-from apps.reportes.models import TipoReporte, ReporteGenerado, Visualizacion
-from .medidas import ComponenteSerializer
-from .organismos import OrganismoSimpleSerializer
+from apps.reportes.models import TipoReporte, ReporteGenerado
+from apps.organismos.models import Organismo
+from apps.medidas.models import Componente
 
 
 class TipoReporteSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoReporte
-        fields = ['id', 'nombre', 'descripcion', 'slug', 'publico']
+        fields = ['id', 'nombre', 'descripcion', 'tipo', 'acceso_superadmin',
+                  'acceso_admin_sma', 'acceso_organismos', 'created_at']
 
 
 class ReporteGeneradoSerializer(serializers.ModelSerializer):
-    tipo_reporte = TipoReporteSerializer(read_only=True)
-    solicitado_por = serializers.StringRelatedField(read_only=True)
+    tipo_reporte_nombre = serializers.ReadOnlyField(source='tipo_reporte.nombre')
+    usuario_nombre = serializers.ReadOnlyField(source='usuario.username')
+    organismo_nombre = serializers.ReadOnlyField(source='organismo.nombre', default=None)
+    componente_nombre = serializers.ReadOnlyField(source='componente.nombre', default=None)
+    archivo_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ReporteGenerado
-        fields = [
-            'id', 'titulo', 'descripcion', 'tipo_reporte', 'parametros',
-            'fecha_solicitud', 'fecha_generacion', 'estado', 'archivo',
-            'solicitado_por', 'publico'
-        ]
-        read_only_fields = ['fecha_solicitud', 'fecha_generacion', 'estado', 'parametros']
+        fields = ['id', 'tipo_reporte', 'tipo_reporte_nombre', 'usuario', 'usuario_nombre',
+                  'titulo', 'fecha_generacion', 'parametros', 'organismo', 'organismo_nombre',
+                  'componente', 'componente_nombre', 'archivo_url']
+        read_only_fields = ['fecha_generacion', 'archivo']
+
+    def get_archivo_url(self, obj):
+        if obj.archivo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.archivo.url)
+        return None
 
 
-class ReporteGeneradoCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ReporteGenerado
-        fields = [
-            'titulo', 'descripcion', 'tipo_reporte', 'parametros',
-            'componentes', 'organismos', 'publico'
-        ]
+class GenerarReporteSerializer(serializers.Serializer):
+    tipo_reporte_id = serializers.IntegerField()
+    titulo = serializers.CharField(max_length=200)
+    organismo_id = serializers.IntegerField(required=False, allow_null=True)
+    componente_id = serializers.IntegerField(required=False, allow_null=True)
+    fecha_inicio = serializers.DateField(required=False, allow_null=True)
+    fecha_fin = serializers.DateField(required=False, allow_null=True)
 
-    def validate(self, data):
-        # Validar que los parámetros son correctos para el tipo de reporte
-        tipo_reporte = data.get('tipo_reporte')
-        parametros = data.get('parametros', {})
+    def validate_tipo_reporte_id(self, value):
+        try:
+            tipo_reporte = TipoReporte.objects.get(pk=value)
+        except TipoReporte.DoesNotExist:
+            raise serializers.ValidationError("El tipo de reporte especificado no existe.")
+        return value
 
-        if tipo_reporte:
-            # Obtener parámetros requeridos para este tipo de reporte
-            param_obligatorios = list(tipo_reporte.parametros.filter(
-                obligatorio=True
-            ).values_list('nombre', flat=True))
+    def validate_organismo_id(self, value):
+        if value:
+            try:
+                Organismo.objects.get(pk=value)
+            except Organismo.DoesNotExist:
+                raise serializers.ValidationError("El organismo especificado no existe.")
+        return value
 
-            # Verificar que todos los parámetros obligatorios estén presentes
-            for param in param_obligatorios:
-                if param not in parametros:
-                    raise serializers.ValidationError({
-                        'parametros': f"Falta el parámetro obligatorio '{param}'"
-                    })
-
-        return data
-
-
-class VisualizacionSerializer(serializers.ModelSerializer):
-    componentes = ComponenteSerializer(many=True, read_only=True)
-    organismos = OrganismoSimpleSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Visualizacion
-        fields = [
-            'id', 'nombre', 'descripcion', 'tipo', 'configuracion',
-            'componentes', 'organismos', 'publico', 'destacado'
-        ]
+    def validate_componente_id(self, value):
+        if value:
+            try:
+                Componente.objects.get(pk=value)
+            except Componente.DoesNotExist:
+                raise serializers.ValidationError("El componente especificado no existe.")
+        return value
