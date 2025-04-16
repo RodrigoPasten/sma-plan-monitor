@@ -1,0 +1,61 @@
+<!-- templates/reportes/detalle_reporte.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Detalle de Reporte" %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'reportes:mis_reportes' %}">{% trans "Mis Reportes" %}</a></li>
+            <li class="breadcrumb-item active">{% trans "Detalle" %}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">{{ reporte.titulo }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>{% trans "Tipo de reporte" %}:</strong> {{ reporte.tipo_reporte.nombre }}</p>
+                    <p><strong>{% trans "Fecha de generación" %}:</strong> {{ reporte.fecha_generacion|date:"d/m/Y H:i" }}</p>
+                    <p><strong>{% trans "Generado por" %}:</strong> {{ reporte.usuario.get_full_name|default:reporte.usuario.username }}</p>
+                </div>
+                <div class="col-md-6">
+                    {% if reporte.organismo %}
+                        <p><strong>{% trans "Organismo" %}:</strong> {{ reporte.organismo.nombre }}</p>
+                    {% endif %}
+
+                    {% if reporte.componente %}
+                        <p><strong>{% trans "Componente" %}:</strong> {{ reporte.componente.nombre }}</p>
+                    {% endif %}
+
+                    {% if reporte.parametros.fecha_inicio %}
+                        <p><strong>{% trans "Período" %}:</strong> {{ reporte.parametros.fecha_inicio }} -
+                            {{ reporte.parametros.fecha_fin|default:"actual" }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="embed-responsive embed-responsive-1by1 border">
+                <iframe class="embed-responsive-item" src="{{ reporte.archivo.url }}" allowfullscreen></iframe>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a href="{% url 'reportes:descargar_reporte' reporte.id %}" class="btn btn-success">
+                    <i class="fas fa-download mr-1"></i> {% trans "Descargar PDF" %}
+                </a>
+                <a href="{% url 'reportes:mis_reportes' %}" class="btn btn-outline-secondary ml-2">
+                    {% trans "Volver a la lista" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

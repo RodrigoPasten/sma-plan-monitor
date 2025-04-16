@@ -1,0 +1,85 @@
+<!-- templates/reportes/generar_reporte.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Generar Reporte" %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'reportes:lista_tipos' %}">{% trans "Reportes" %}</a></li>
+            <li class="breadcrumb-item active">{% trans "Generar Reporte" %}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">{% trans "Generar Reporte" %}: {{ tipo_reporte.nombre }}</h5>
+        </div>
+        <div class="card-body">
+            <p class="lead">{{ tipo_reporte.descripcion }}</p>
+
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="titulo">{% trans "Título del reporte" %}:</label>
+                    <input type="text" class="form-control" id="titulo" name="titulo"
+                           placeholder="{% trans 'Ingrese un título para el reporte' %}" required>
+                </div>
+
+                {% if tipo_reporte.tipo == 'organismo' and organismos %}
+                    <div class="form-group">
+                        <label for="organismo">{% trans "Organismo" %}:</label>
+                        <select class="form-control" id="organismo" name="organismo" required>
+                            <option value="">{% trans "Seleccione un organismo" %}</option>
+                            {% for org in organismos %}
+                                <option value="{{ org.id }}">{{ org.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
+
+                {% if tipo_reporte.tipo == 'componente' %}
+                    <div class="form-group">
+                        <label for="componente">{% trans "Componente" %}:</label>
+                        <select class="form-control" id="componente" name="componente" required>
+                            <option value="">{% trans "Seleccione un componente" %}</option>
+                            {% for comp in componentes %}
+                                <option value="{{ comp.id }}">{{ comp.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                {% endif %}
+
+                <!-- Fechas opcionales -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="fecha_inicio">{% trans "Fecha de inicio (opcional)" %}:</label>
+                            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="fecha_fin">{% trans "Fecha de fin (opcional)" %}:</label>
+                            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-pdf mr-1"></i> {% trans "Generar Reporte" %}
+                    </button>
+                    <a href="{% url 'reportes:lista_tipos' %}" class="btn btn-outline-secondary ml-2">
+                        {% trans "Cancelar" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
