@@ -1,0 +1,96 @@
+<!-- templates/reportes/mis_reportes.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Mis Reportes" %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{% trans "Mis Reportes" %}</h1>
+        <a href="{% url 'reportes:lista_tipos' %}" class="btn btn-primary">
+            <i class="fas fa-plus mr-1"></i> {% trans "Nuevo Reporte" %}
+        </a>
+    </div>
+
+    {% if reportes %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>{% trans "Título" %}</th>
+                        <th>{% trans "Tipo" %}</th>
+                        <th>{% trans "Fecha" %}</th>
+                        <th>{% trans "Organismo/Componente" %}</th>
+                        <th>{% trans "Acciones" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reporte in reportes %}
+                        <tr>
+                            <td>{{ reporte.titulo }}</td>
+                            <td>{{ reporte.tipo_reporte.nombre }}</td>
+                            <td>{{ reporte.fecha_generacion|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if reporte.organismo %}
+                                    {{ reporte.organismo.nombre }}
+                                {% elif reporte.componente %}
+                                    {{ reporte.componente.nombre }}
+                                {% else %}
+                                    {% trans "General" %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'reportes:detalle_reporte' reporte.id %}" class="btn btn-sm btn-info mr-1">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'reportes:descargar_reporte' reporte.id %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <nav aria-label="{% trans 'Paginación de reportes' %}" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">{% trans "Primera" %}</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{% trans "Anterior" %}</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">
+                        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">{% trans "Siguiente" %}</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{% trans "Última" %}</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            <p>{% trans "No has generado ningún reporte todavía." %}</p>
+            <a href="{% url 'reportes:lista_tipos' %}" class="btn btn-primary mt-2">
+                {% trans "Generar mi primer reporte" %}
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

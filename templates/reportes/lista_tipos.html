@@ -1,0 +1,47 @@
+<!-- templates/reportes/lista_tipos.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Tipos de Reportes" %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">{% trans "Reportes Disponibles" %}</h1>
+
+    <div class="row">
+        {% if tipos_reporte %}
+            {% for tipo in tipos_reporte %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">{{ tipo.nombre }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ tipo.descripcion }}</p>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <a href="{% url 'reportes:generar_reporte' tipo.id %}" class="btn btn-outline-primary">
+                                <i class="fas fa-file-pdf mr-1"></i> {% trans "Generar Reporte" %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    {% trans "No hay tipos de reportes disponibles para tu perfil." %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Enlace a Mis Reportes -->
+    <div class="mt-4">
+        <a href="{% url 'reportes:mis_reportes' %}" class="btn btn-secondary">
+            <i class="fas fa-list mr-1"></i> {% trans "Ver Mis Reportes" %}
+        </a>
+    </div>
+</div>
+{% endblock %}

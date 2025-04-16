@@ -5,13 +5,15 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework.permissions import AllowAny
 
+
+
 from .views.organismos import OrganismoViewSet, TipoOrganismoViewSet
 from .views.medidas import ComponenteViewSet, MedidaViewSet, RegistroAvanceViewSet
 from .views.dashboard import DashboardView
 
 from .views.auth import CustomAuthToken, LogoutView
 
-# Pendiente por la app Reporte
+from rest_framework.routers import DefaultRouter
 from .views.reportes import TipoReporteViewSet, ReporteGeneradoViewSet
 
 from rest_framework.authtoken.views import obtain_auth_token
@@ -33,6 +35,8 @@ schema_view = get_schema_view(
     public=True,
     permission_classes=(AllowAny,),
 )
+
+app_name = 'api'
 # Configuración del router para las vistas basadas en viewsets
 router = DefaultRouter()
 router.register(r'organismos', OrganismoViewSet)
@@ -61,7 +65,9 @@ urlpatterns = [
     # Autenticación
     path('auth/token/', CustomAuthToken.as_view(), name='api-token'),
     path('auth/logout/', LogoutView.as_view(), name='api-logout'),
-    #path('debug-auth/', debug_auth),
+    path('notificaciones/', include('apps.api.urls_notificaciones')),
+
+
 ]
 
 

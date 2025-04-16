@@ -1,118 +1,105 @@
-from rest_framework import viewsets, status
+# apps/api/views/reportes.py
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema, extend_schema_view
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.views import APIView
 
-from apps.reportes.models import TipoReporte, ReporteGenerado, Visualizacion
-from ..serializers.reportes import (
-    TipoReporteSerializer,
-    ReporteGeneradoSerializer,
-    ReporteGeneradoCreateSerializer,
-    VisualizacionSerializer
-)
-from ..permissions import IsPublicEndpoint, IsAdminSMA, IsSuperAdmin
+from apps.reportes.models import TipoReporte, ReporteGenerado
+from apps.reportes.services import ReporteService
+from ..serializers.reportes import TipoReporteSerializer, ReporteGeneradoSerializer, GenerarReporteSerializer
 
 
-@extend_schema_view(
-    list=extend_schema(description="Listar todos los tipos de reporte disponibles"),
-    retrieve=extend_schema(description="Obtener un tipo de reporte específico")
-)
 class TipoReporteViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint para consultar tipos de reporte disponibles.
+    API endpoint para consultar tipos de reportes disponibles.
     """
-    queryset = TipoReporte.objects.filter(activo=True)
+    queryset = TipoReporte.objects.all()
     serializer_class = TipoReporteSerializer
-    permission_classes = [IsPublicEndpoint]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['publico']
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Filtrar tipos de reporte según el rol del usuario
+        user = self.request.user
+        queryset = TipoReporte.objects.all()
+
+        if user.rol == 'superadmin':
+            queryset = queryset.filter(acceso_superadmin=True)
+        elif user.rol == 'admin_sma':
+            queryset = queryset.filter(acceso_admin_sma=True)
+        elif user.rol == 'organismo':
+            queryset = queryset.filter(acceso_organismos=True)
+        else:
+            queryset = queryset.none()
+
+        return queryset
 
 
-@extend_schema_view(
-    list=extend_schema(description="Listar todos los reportes generados"),
-    retrieve=extend_schema(description="Obtener un reporte generado específico"),
-    create=extend_schema(description="Solicitar la generación de un nuevo reporte"),
-)
 class ReporteGeneradoViewSet(viewsets.ModelViewSet):
     """
     API endpoint para gestionar reportes generados.
     """
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['tipo_reporte', 'estado', 'publico']
+    serializer_class = ReporteGeneradoSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # Un usuario solo puede ver sus propios reportes (excepto superadmin y admin_sma)
         user = self.request.user
+        if user.rol in ['superadmin', 'admin_sma']:
+            return ReporteGenerado.objects.all().order_by('-fecha_generacion')
+        return ReporteGenerado.objects.filter(usuario=user).order_by('-fecha_generacion')
 
-        # Si es administrador, ve todos los reportes
-        if user.is_authenticated and (user.is_superadmin or user.is_admin_sma):
-            return ReporteGenerado.objects.all()
+    @action(detail=False, methods=['post'])
+    def generar(self, request):
+        """
+        Genera un nuevo reporte basado en los parámetros proporcionados.
+        """
+        serializer = GenerarReporteSerializer(data=request.data)
+        if serializer.is_valid():
+            # Si es usuario de organismo, forzar su propio organismo
+            organismo_id = serializer.validated_data.get('organismo_id')
+            if request.user.rol == 'organismo':
+                organismo_id = request.user.organismo.id
 
-        # Si está autenticado, ve reportes públicos o propios
-        if user.is_authenticated:
-            return ReporteGenerado.objects.filter(
-                publico=True
-            ) | ReporteGenerado.objects.filter(
-                solicitado_por=user
+            # Generar el reporte
+            reporte = ReporteService.generar_reporte(
+                usuario=request.user,
+                tipo_reporte_id=serializer.validated_data['tipo_reporte_id'],
+                titulo=serializer.validated_data['titulo'],
+                organismo_id=organismo_id,
+                componente_id=serializer.validated_data.get('componente_id'),
+                fecha_inicio=serializer.validated_data.get('fecha_inicio'),
+                fecha_fin=serializer.validated_data.get('fecha_fin'),
             )
 
-        # Si no está autenticado, solo ve reportes públicos
-        return ReporteGenerado.objects.filter(publico=True)
+            if reporte:
+                result_serializer = ReporteGeneradoSerializer(
+                    reporte,
+                    context={'request': request}
+                )
+                return Response(result_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(
+                    {"error": "No se pudo generar el reporte. Verifique los parámetros."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return ReporteGeneradoCreateSerializer
-        return ReporteGeneradoSerializer
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            permission_classes = [IsPublicEndpoint]
-        else:
-            permission_classes = [IsAdminSMA | IsSuperAdmin]
-        return [permission() for permission in permission_classes]
-    
-    def destroy(self, request, *args, **kwargs):
-        """Desactivar un Reporte: Cambiar el estado de un reporte a Inactivo en lugar de borrar."""
-        instance = self.get_object()
-        instance.activo = False
-        instance.save()
-        
-        return Response({"message":"Reporte desactivado con éxito."},
-                        status=status.HTTP_204_NO_CONTENT)
-
-    def perform_create(self, serializer):
-        serializer.save(
-            solicitado_por=self.request.user,
-            estado='pendiente'
-        )
-
-    @extend_schema(
-        description="Descargar un reporte generado"
-    )
     @action(detail=True, methods=['get'])
-    def download(self, request, pk=None):
+    def descargar(self, request, pk=None):
         """
-        Descargar un reporte generado.
+        Retorna la URL de descarga del reporte.
         """
         reporte = self.get_object()
 
-        # Verificar que el reporte esté completado
-        if reporte.estado != 'completado':
-            return Response(
-                {"detail": "El reporte aún no está listo para descarga"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Verificar que exista el archivo
+        # Verificar que el archivo exista
         if not reporte.archivo:
             return Response(
-                {"detail": "El reporte no tiene un archivo asociado"},
+                {"error": "El archivo del reporte no está disponible."},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Incrementar contador de descargas
-        reporte.contador_descargas = (reporte.contador_descargas or 0) + 1
-        reporte.save(update_fields=['contador_descargas'])
-
-        # Redireccionar a la URL del archivo
-        return Response({"file_url": reporte.archivo.url})
+        # Retornar la URL
+        return Response({
+            "archivo_url": request.build_absolute_uri(reporte.archivo.url)
+        })
