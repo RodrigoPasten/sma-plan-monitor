@@ -111,6 +111,50 @@ class ReporteService:
             print(traceback.format_exc())
             return None
 
+    class ReporteService:
+
+        @staticmethod
+        def generar_reporte(usuario, tipo_reporte_id, titulo, organismo_id=None, componente_id=None):
+            tipo_reporte = TipoReporte.objects.get(pk=tipo_reporte_id)
+
+            # Crear instancia del modelo
+            reporte = ReporteGenerado(
+                usuario=usuario,
+                tipo_reporte=tipo_reporte,
+                titulo=titulo
+            )
+
+            if organismo_id:
+                reporte.organismo_id = organismo_id
+            if componente_id:
+                reporte.componente_id = componente_id
+
+            # Generar PDF en memoria
+            buffer = BytesIO()
+            pdf = canvas.Canvas(buffer, pagesize=letter)
+            pdf.setTitle(titulo)
+
+            pdf.drawString(100, 750, f"Reporte: {titulo}")
+            pdf.drawString(100, 730, f"Generado por: {usuario.get_full_name()}")
+            pdf.drawString(100, 710, f"Tipo de reporte: {tipo_reporte.tipo}")
+            pdf.drawString(100, 690, f"Fecha: {reporte.fecha_generacion.strftime('%Y-%m-%d %H:%M:%S')}")
+
+            # Aquí puedes agregar más datos según el tipo de reporte
+            pdf.drawString(100, 660, "Contenido del reporte aquí...")
+
+            pdf.showPage()
+            pdf.save()
+
+            # Guardar PDF en el campo archivo
+            buffer.seek(0)
+            reporte.archivo.save(f'reporte_{tipo_reporte.tipo}_{usuario.id}.pdf', ContentFile(buffer.read()),
+                                 save=False)
+
+            # Guardar el modelo
+            reporte.save()
+
+            return reporte
+
     @staticmethod
     def _generar_reporte_general(reporte):
         """Genera un reporte general del plan de descontaminación"""

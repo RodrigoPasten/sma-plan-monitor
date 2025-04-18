@@ -12,6 +12,14 @@ class TipoNotificacion(models.Model):
     descripcion = models.TextField(_("Descripción"), blank=True)
     icono = models.CharField(_("Icono"), max_length=50, blank=True)
     color = models.CharField(_("Color"), max_length=20, blank=True)
+    codigo = models.CharField(_("Código"), max_length=50, unique=True, blank=True, null=True)
+    created_at = models.DateTimeField(_("Fecha de creación"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Fecha de actualización"), auto_now=True)
+
+    para_superadmin = models.BooleanField(_("Para Superadmin"), default=False)
+    para_admin_sma = models.BooleanField(_("Para Admin SMA"), default=False)
+    para_organismos = models.BooleanField(_("Para Organismos"), default=False)
+    para_ciudadanos = models.BooleanField(_("Para Ciudadanos"), default=False)
 
     created_at = models.DateTimeField(_("Fecha de creación"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Fecha de actualización"), auto_now=True)
@@ -22,6 +30,7 @@ class TipoNotificacion(models.Model):
 
     def __str__(self):
         return self.nombre
+
 
 
 class Notificacion(models.Model):
@@ -51,7 +60,24 @@ class Notificacion(models.Model):
     titulo = models.CharField(_("Título"), max_length=200)
     mensaje = models.TextField(_("Mensaje"))
     enlace = models.CharField(_("Enlace"), max_length=255, blank=True)
+    # Agregar estos campos
+    medida = models.ForeignKey(
+        'medidas.Medida',
+        on_delete=models.SET_NULL,
+        verbose_name=_("Medida"),
+        related_name="notificaciones",
+        blank=True,
+        null=True
+    )
 
+    organismo = models.ForeignKey(
+        'organismos.Organismo',
+        on_delete=models.SET_NULL,
+        verbose_name=_("Organismo"),
+        related_name="notificaciones",
+        blank=True,
+        null=True
+    )
     fecha_envio = models.DateTimeField(_("Fecha de envío"), auto_now_add=True)
     fecha_lectura = models.DateTimeField(_("Fecha de lectura"), null=True, blank=True)
 

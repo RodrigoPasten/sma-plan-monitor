@@ -1,0 +1,66 @@
+.logout-container {
+    text-align: center;
+    padding: 50px 20px;
+    background: linear-gradient(135deg, #06828a, #04b4c0);
+    color: white;
+    border-radius: 20px;
+    max-width: 600px;
+    margin: 100px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.logout-container h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.logout-container p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+.logout-actions .btn {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.logout-actions .btn-primary {
+    background-color: #ffffff;
+    color: #06828a;
+    border: none;
+}
+
+.logout-actions .btn-primary:hover {
+    background-color: #e4e4e4;
+}
+
+.logout-actions .btn-secondary {
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+}
+
+.logout-actions .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.logout-logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 30px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}

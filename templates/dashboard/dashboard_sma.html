@@ -1,0 +1,395 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard SMA{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="mb-4">Dashboard Administración SMA</h1>
+
+    <!-- Tarjetas de estadísticas generales -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Total Medidas</h5>
+                    <h2 class="display-4">{{ total_medidas }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Completadas</h5>
+                    <h2 class="display-4">{{ medidas_completadas }}</h2>
+                    <p class="mb-0">{{ medidas_completadas|floatformat:1 }}% del total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">En Proceso</h5>
+                    <h2 class="display-4">{{ medidas_en_proceso }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Retrasadas</h5>
+                    <h2 class="display-4">{{ medidas_retrasadas }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de avance general -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Avance del Plan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width: {{ avance_promedio }}%;"
+                             aria-valuenow="{{ avance_promedio }}"
+                             aria-valuemin="0" aria-valuemax="100">
+                            {{ avance_promedio|floatformat:1 }}%
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <canvas id="avanceComponentesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title">Avance por Componente</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Componente</th>
+                                <th>Avance</th>
+                                <th>Completadas</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for componente in componentes %}
+                            <tr>
+                                <td>
+                                    <span class="badge" style="background-color: {{ componente.color|default:'#777' }}">
+                                        &nbsp;
+                                    </span>
+                                    {{ componente.nombre }}
+                                </td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar"
+                                             style="width: {{ componente.avance_promedio|floatformat:0 }}%; background-color: {{ componente.color|default:'#777' }};"
+                                             aria-valuenow="{{ componente.avance_promedio|floatformat:0 }}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            {{ componente.avance_promedio|floatformat:1 }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ componente.medidas_completadas }}</td>
+                                <td>{{ componente.total_medidas }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medidas próximas a vencer y más retrasadas -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="card-title mb-0">Medidas Próximas a Vencer</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Medida</th>
+                                    <th>Vence</th>
+                                    <th>Avance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for medida in medidas_proximas_vencer %}
+                                <tr>
+                                    <td>{{ medida.codigo }}</td>
+                                    <td>
+                                       <a href="{% url 'medidas:registrar_avance_medida' medida.id %}">
+
+
+                                            {{ medida.nombre|truncatechars:40 }}
+                                        </a>
+                                    </td>
+                                    <td>{{ medida.fecha_termino|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar"
+                                                 style="width: {{ medida.porcentaje_avance }}%; background-color: {{ medida.componente.color|default:'#777' }};"
+                                                 aria-valuenow="{{ medida.porcentaje_avance }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ medida.porcentaje_avance|floatformat:0 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No hay medidas próximas a vencer</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Medidas más Retrasadas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Medida</th>
+                                    <th>Retraso</th>
+                                    <th>Avance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for medida in medidas_retrasadas_list %}
+                                <tr>
+                                    <td>{{ medida.codigo }}</td>
+                                    <td>
+                                        <a href="{% url 'medidas:detalle' medida.id %}">
+                                            {{ medida.nombre|truncatechars:40 }}
+                                        </a>
+                                    </td>
+                                    <td>{{ medida.dias_retraso.days }} días</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: {{ medida.porcentaje_avance }}%;"
+                                                 aria-valuenow="{{ medida.porcentaje_avance }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ medida.porcentaje_avance|floatformat:0 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No hay medidas retrasadas</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Organismos con mejor y peor desempeño -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Organismos con Mejor Desempeño</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Organismo</th>
+                                    <th>Avance</th>
+                                    <th>Completadas</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for organismo in mejores_organismos %}
+                                <tr>
+                                    <td>{{ organismo.nombre }}</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 style="width: {{ organismo.avance_promedio|floatformat:0 }}%;"
+                                                 aria-valuenow="{{ organismo.avance_promedio|floatformat:0 }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ organismo.avance_promedio|floatformat:1 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ organismo.medidas_completadas }}</td>
+                                    <td>{{ organismo.total_medidas }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">Organismos con Menor Avance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Organismo</th>
+                                    <th>Avance</th>
+                                    <th>Completadas</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for organismo in peores_organismos %}
+                                <tr>
+                                    <td>{{ organismo.nombre }}</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-secondary" role="progressbar"
+                                                 style="width: {{ organismo.avance_promedio|floatformat:0 }}%;"
+                                                 aria-valuenow="{{ organismo.avance_promedio|floatformat:0 }}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                                {{ organismo.avance_promedio|floatformat:1 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ organismo.medidas_completadas }}</td>
+                                    <td>{{ organismo.total_medidas }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimos avances registrados -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Últimos Avances Registrados</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Medida</th>
+                                    <th>Organismo</th>
+                                    <th>Avance</th>
+                                    <th>Registrado por</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for avance in ultimos_avances %}
+                                <tr>
+                                    <td>{{ avance.fecha_registro|date:"d/m/Y" }}</td>
+                                    <td>
+                                      {% if avance.medida %}
+    <a href="{% url 'medidas:registrar_avance_medida' avance.medida.id %}">Registrar avance</a>
+{% else %}
+    <span class="text-muted">Sin medida</span>
+{% endif %}
+                                    </td>
+                                    <td>{{ avance.organismo.nombre }}</td>
+                                    <td>{{ avance.porcentaje_avance|floatformat:1 }}%</td>
+                                    <td>{{ avance.created_by.get_full_name|default:avance.created_by.username }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">No hay avances registrados</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Datos para el gráfico de componentes
+    const componentesData = {
+        labels: [{% for componente in componentes %}'{{ componente.nombre }}',{% endfor %}],
+        datasets: [{
+            label: 'Avance (%)',
+            data: [{% for componente in componentes %}{{ componente.avance_promedio|floatformat:1 }},{% endfor %}],
+            backgroundColor: [{% for componente in componentes %}'{{ componente.color|default:"#777" }}',{% endfor %}],
+            borderWidth: 1
+        }]
+    };
+
+    // Configuración del gráfico
+    const componentesConfig = {
+        type: 'bar',
+        data: componentesData,
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    };
+
+    // Crear el gráfico
+    const componentesChart = new Chart(
+        document.getElementById('avanceComponentesChart'),
+        componentesConfig
+    );
+});
+</script>
+{% endblock %}

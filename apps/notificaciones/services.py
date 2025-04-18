@@ -1,6 +1,8 @@
 from django.utils import timezone
 from django.db.models import Q
 from django.conf import settings
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 from .models import Notificacion, TipoNotificacion
 
@@ -14,7 +16,7 @@ class NotificacionService:
             tipo_nombre=None,
             prioridad='media',
             enlace='',
-            enviar_email=False  # Cambiado a False por defecto para pruebas
+            enviar_email=True
     ):
         """
         Crea y envía una notificación a un usuario específico.
@@ -52,12 +54,40 @@ class NotificacionService:
             prioridad=prioridad
         )
 
-        # Aquí iría el código para enviar email si está habilitado
-        # Por ahora lo dejamos comentado
-        # if enviar_email and usuario.email:
-        #     NotificacionService._enviar_email_notificacion(notificacion)
+        # Enviar correo electrónico si está habilitado
+        if enviar_email and usuario.email and getattr(usuario, 'recibir_notificaciones_email', True):
+            NotificacionService._enviar_email_notificacion(notificacion)
 
         return notificacion
+
+    @staticmethod
+    def _enviar_email_notificacion(notificacion):
+        """
+        Envía un correo electrónico para una notificación.
+        """
+        context = {
+            'notificacion': notificacion,
+            'site_url': getattr(settings, 'SITE_URL', 'http://localhost:8000'),
+        }
+
+        subject = f"[Plan de Descontaminación] {notificacion.titulo}"
+        html_message = render_to_string('notificaciones/emails/notificacion.html', context)
+        plain_message = render_to_string('notificaciones/emails/notificacion.txt', context)
+
+        try:
+            send_mail(
+                subject=subject,
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[notificacion.usuario.email],
+                html_message=html_message,
+                fail_silently=False
+            )
+            print(f"Correo enviado correctamente a {notificacion.usuario.email}")
+            return True
+        except Exception as e:
+            print(f"Error al enviar email: {str(e)}")
+            return False
 
     @staticmethod
     def obtener_notificaciones_no_leidas(usuario):
@@ -71,13 +101,19 @@ class NotificacionService:
 
         return Notificacion.objects.filter(
             usuario_id=usuario_id,
-            leida=False
+            leida=False  # Asegurarse de que este filtro esté presente
         ).order_by('-prioridad', '-fecha_envio')
 
     @staticmethod
     def contar_notificaciones_no_leidas(usuario):
         """
         Cuenta las notificaciones no leídas de un usuario.
+
+        Args:
+            usuario: Usuario o ID de usuario
+
+        Returns:
+            int: Número de notificaciones no leídas
         """
         if isinstance(usuario, int):
             usuario_id = usuario

@@ -1,6 +1,5 @@
-# apps/reportes/forms.py
 from django import forms
-from .models import TipoReporte, ConfiguracionReporte, ReporteGenerado
+from .models import TipoReporte, ReporteGenerado
 
 
 class ReporteGeneradoForm(forms.ModelForm):

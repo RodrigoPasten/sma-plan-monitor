@@ -26,11 +26,11 @@ urlpatterns = [
     # API Endpoint
     path('api/v1/', include('apps.api.urls')),
     path('medidas/', include('apps.medidas.urls')),
-    # path('organismos/', include('apps.organismos.urls')),
-    #path('usuarios/', include('apps.usuarios.urls')),
+    path('organismos/', include('apps.organismos.urls')),
+
     path('reportes/', include('apps.reportes.urls')),
-    # path('auditorias/', include('apps.auditorias.urls')),
-    #path('accounts/', include('django.contrib.auth.urls')),
+
+    path('accounts/', include('django.contrib.auth.urls')),
     # URLs de autenticación explícitas
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='registration/logged_out.html'), name='logout'),

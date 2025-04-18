@@ -1,0 +1,16 @@
+<!-- templates/notificaciones/emails/notificacion.txt -->
+Plan de Descontaminación
+
+{{ notificacion.titulo }}
+
+Hola {{ notificacion.usuario.get_full_name|default:notificacion.usuario.username }},
+
+{{ notificacion.mensaje }}
+
+{% if notificacion.enlace %}
+Para más detalles, visite: {{ site_url }}{{ notificacion.enlace }}
+{% endif %}
+
+---
+Esta es una notificación automática del sistema Plan de Descontaminación.
+Si no desea recibir estas notificaciones, puede modificar su configuración desde su perfil de usuario.

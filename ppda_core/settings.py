@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+from decouple import config
 
 load_dotenv('.env')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -171,7 +172,7 @@ SPECTACULAR_SETTINGS = {
         'Bearer': {
             'type': 'apiKey',
             'in': 'header',
-            'name': 'Authorization',  # Nombre del campo para el token
+            'name': 'Authorization',
         }
     }
 }
@@ -195,11 +196,11 @@ JAZZMIN_SETTINGS = {
     "site_header": "Panel Administrador Monitor SMA",
     "site_brand": "SMA",
     "site_logo": "images/logo_ppda.png",
-    "custom_css": "css/logo_admin.css",
+    "theme": "slate",
     "welcome_sign": "Bienvenido al Panel de Administración del Monitor SMA",
-    "topmenu_links": [
-        {"name": "Inicio", "url": "/admin", "permissions": ["auth.view_user"]},
-        {"name": "Documentación", "url": "https://www.djangoproject.com/", "new_window": True},
+      "topmenu_links": [
+        {"name": "Inicio", "url": "/admin/", "permissions": ["auth.view_user"]},
+
     ],
     "icons": {
         #Probando cambiar iconos
@@ -227,17 +228,24 @@ JAZZMIN_SETTINGS = {
         "reportes.parametroreporte": "fas fa-sliders-h",
         "auth.group": "fas fa-users-cog",
         "organismos.tipoorganismo": "fas fa-sitemap",
-        "reportes.reportegenerado": "fas fa-file-export"
+        "reportes.reportegenerado": "fas fa-file-export",
+        "authtoken.token": "fas fa-key",
 
     },
 
+
     "user_avatar": "path_to_avatar.png",
+
+}
+JAZZMIN_UI_TWEAKS = {
+    "theme": "flatly",
+    "dark_mode_theme": "slate",
 }
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'es'
+LANGUAGE_CODE = 'es-cl'
 
 TIME_ZONE = 'America/Santiago'
 
@@ -259,3 +267,14 @@ LOGIN_REDIRECT_URL = '/'  # Redirigir a la página principal después del login
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+SITE_URL = config('SITE_URL')

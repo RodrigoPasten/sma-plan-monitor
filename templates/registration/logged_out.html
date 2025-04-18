@@ -1,10 +1,21 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/logout.css' %}">
+{% endblock %}
 
 {% block title %}Cerrar sesión{% endblock %}
 
 {% block content %}
-    <h1>Sesión cerrada</h1>
-    <p>Has cerrado sesión correctamente.</p>
-    <a class="btn btn-primary" href="{% url 'login' %}">Iniciar sesión de nuevo</a>
-    <a class="btn btn-secondary" href="/">Volver al inicio</a>
+    <div class="logout-container">
+        <img src="{% static 'images/logo_ppda.png' %}" alt="Logo" class="logout-logo">
+        <h1>Sesión cerrada</h1>
+        <p>Has cerrado sesión correctamente.</p>
+        <div class="logout-actions">
+            <a class="btn btn-primary" href="{% url 'login' %}">Iniciar sesión de nuevo</a>
+            <a class="btn btn-secondary" href="/">Volver al inicio</a>
+        </div>
+    </div>
 {% endblock %}
+

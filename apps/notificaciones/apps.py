@@ -1,4 +1,4 @@
-# apps/notificaciones/apps.py
+
 from django.apps import AppConfig
 
 
@@ -7,5 +7,4 @@ class NotificacionesConfig(AppConfig):
     name = 'apps.notificaciones'
 
     def ready(self):
-        # import apps.notificaciones.signals
-        pass
+        import apps.notificaciones.signals

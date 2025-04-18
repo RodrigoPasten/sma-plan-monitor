@@ -1,20 +1,35 @@
 from django.dispatch import receiver
 from apps.usuarios.models import Usuario
-from .models import ConfiguracionNotificaciones, TipoNotificacion
+from .models import Notificacion, TipoNotificacion
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import timedelta
+from .services import NotificacionService
 
 from apps.medidas.models import Medida, RegistroAvance, AsignacionMedida
-from .models import Notificacion, TipoNotificacion
 
 
+# Añadimos esta señal para enviar emails cuando se crea una notificación
+@receiver(post_save, sender=Notificacion)
+def enviar_email_notificacion(sender, instance, created, **kwargs):
+    """
+    Envía un email cuando se crea una nueva notificación.
+    """
+    if created and instance.usuario.email and getattr(instance.usuario, 'recibir_notificaciones_email', True):
+        try:
+            NotificacionService._enviar_email_notificacion(instance)
+        except Exception as e:
+            print(f"Error al enviar email para notificación {instance.id}: {str(e)}")
+
+
+# Comentamos esta función porque ConfiguracionNotificaciones no está definida en tu modelo actual
+"""
 @receiver(post_save, sender=Usuario)
 def crear_configuracion_notificaciones(sender, instance, created, **kwargs):
-    """
+
     Crea una configuración de notificaciones para cada usuario nuevo.
-    """
+
     if created:
         # Crear configuración básica
         config = ConfiguracionNotificaciones.objects.create(
@@ -37,6 +52,7 @@ def crear_configuracion_notificaciones(sender, instance, created, **kwargs):
 
         # Añadir los tipos encontrados a la configuración
         config.tipos_habilitados.add(*tipos_relevantes)
+"""
 
 
 @receiver(post_save, sender=RegistroAvance)

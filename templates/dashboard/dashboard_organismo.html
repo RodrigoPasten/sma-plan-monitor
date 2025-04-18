@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Organismos{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1>Dashboard de Organismos</h1>
+
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for organismo in organismos %}
+            <tr>
+                <td>{{ organismo.id }}</td>
+                <td>{{ organismo.nombre }}</td>
+                <td>{{ organismo.descripcion }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center">No hay organismos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'medidas:dashboard_sma' %}" class="btn btn-primary">Volver al Dashboard SMA</a>
+
+
+</div>
+{% endblock %}

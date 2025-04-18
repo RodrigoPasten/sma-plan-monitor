@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ medida.codigo }} - {{ medida.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <a href="{% url 'medidas:dashboard_sma' %}">Dashboard</a>
+
+            <li class="breadcrumb-item active">{{ medida.codigo }}</li>
+        </ol>
+    </nav>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">{{ medida.codigo }} - {{ medida.nombre }}</h2>
+                <span class="badge 
+                    {% if medida.estado == 'completada' %}bg-success
+                    {% elif medida.estado == 'en_proceso' %}bg-warning
+                    {% elif medida.estado == 'retrasada' %}bg-danger
+                    {% else %}bg-secondary{% endif %}">
+                    {{ medida.get_estado_display }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5>Descripción</h5>
+                    <p>{{ medida.descripcion|linebreaks }}</p>
+                    
+                    <h5>Avance</h5>
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div class="progress-bar 
+                            {% if medida.porcentaje_avance >= 100 %}bg-success
+                            {% elif medida.porcentaje_avance >= 50 %}bg-info
+                            {% elif medida.porcentaje_avance >= 25 %}bg-warning
+                            {% else %}bg-danger{% endif %}" 
+                            role="progressbar" 
+                            style="width: {{ medida.porcentaje_avance }}%;" 
+                            aria-valuenow="{{ medida.porcentaje_avance }}" 
+                            aria-valuemin="0" 
+                            aria-valuemax="100">
+                            {{ medida.porcentaje_avance|floatformat:1 }}%
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">Información</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Componente:</span>
+                                <span>{{ medida.componente }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Prioridad:</span>
+                                <span>{{ medida.get_prioridad_display }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Fecha inicio:</span>
+                                <span>{{ medida.fecha_inicio|date:"d/m/Y" }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Fecha término:</span>
+                                <span>{{ medida.fecha_termino|date:"d/m/Y" }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Organismos responsables</h5>
+                </div>
+                <div class="card-body">
+                    {% if asignaciones %}
+                        <ul class="list-group">
+                            {% for asignacion in asignaciones %}
+                                <li class="list-group-item">
+                                    <strong>{{ asignacion.organismo.nombre }}</strong>
+                                    {% if asignacion.es_coordinador %}
+                                        <span class="badge bg-primary">Coordinador</span>
+                                    {% endif %}
+                                    {% if asignacion.descripcion_responsabilidad %}
+                                        <p class="mb-0 mt-1 small">{{ asignacion.descripcion_responsabilidad }}</p>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No hay organismos asignados a esta medida.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Historial de avances</h5>
+                    <a href="{% url 'medidas:registrar_avance_medida' medida.id %}" class="btn btn-sm btn-primary">Registrar avance</a>
+
+                </div>
+                <div class="card-body">
+                    {% if registros_avance %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Organismo</th>
+                                        <th>Avance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for registro in registros_avance %}
+                                        <tr>
+                                            <td>{{ registro.fecha_registro|date:"d/m/Y" }}</td>
+                                            <td>{{ registro.organismo.nombre }}</td>
+                                            <td>{{ registro.porcentaje_avance }}%</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay registros de avance para esta medida.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
