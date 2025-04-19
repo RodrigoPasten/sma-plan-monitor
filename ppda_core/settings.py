@@ -13,6 +13,8 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from decouple import config
+import dj_database_url
+from pathlib import Path
 
 load_dotenv('.env')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,14 +33,16 @@ dbport = os.getenv('DB_PORT')
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-fm_+d@ez0qn033n9@1cz_#8(6mp3z^tn(yu*wdg59d!dg*4!a#'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'tu-clave-secreta-de-desarrollo')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = []
 
-
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -111,15 +115,18 @@ WSGI_APPLICATION = 'ppda_core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': dbname,
-        'USER': dbuser,
-        'PASSWORD': dbpass,
-        'HOST': dbhost,
-        'PORT': dbport,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+# Configuración para Neon (PostgreSQL) en producción
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -263,6 +270,10 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # Asegúrate de que tu carpeta 'static' esté aquí
 ]
 LOGIN_REDIRECT_URL = '/'  # Redirigir a la página principal después del login
+# Configuración para los estáticos en Render
+if not DEBUG:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
