@@ -5,19 +5,22 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13%2B-blue)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+# Sistema de Monitoreo para Plan de Descontaminación
+
 Sistema de gestión y monitoreo para el Plan de Descontaminación de Concón, Quinteros y Puchuncaví, permitiendo el seguimiento del avance de medidas por los diferentes organismos participantes y ofreciendo transparencia a la ciudadanía.
 
 ## 🚀 Características
 
-- ✅ **Multi-usuario y multi-rol**: Superadmin, Admin SMA, Organismos y Ciudadanos
-- 📊 **Dashboards interactivos** con visualización del avance global y por componente
-- 📝 **Gestión de medidas** organizadas por componentes temáticos
-- 📋 **Registro de avances** por cada organismo responsable
-- 📈 **Generación de reportes** en múltiples formatos (web, PDF)
-- 🔑 **Sistema de permisos** basado en roles
-- 🔍 **Auditoría** de todas las acciones realizadas en el sistema
-- 🌐 **API REST** completa con documentación Swagger/OpenAPI
-- 🖥️ **Portal público** para transparencia ciudadana
+- ✅ Multi-usuario y multi-rol: Superadmin, Admin SMA, Organismos y Ciudadanos
+- 📊 Dashboards interactivos con visualización del avance global y por componente
+- 📝 Gestión de medidas organizadas por componentes temáticos
+- 📋 Registro de avances por cada organismo responsable
+- 📈 Generación de reportes en múltiples formatos (web, PDF)
+- 🔔 Sistema de notificaciones en tiempo real con envío por correo electrónico
+- 🔑 Sistema de permisos basado en roles
+- 🔍 Auditoría de todas las acciones realizadas en el sistema
+- 🌐 API REST completa con documentación Swagger/OpenAPI
+- 🖥️ Portal público para transparencia ciudadana
 
 ## 📋 Requisitos
 
@@ -27,15 +30,13 @@ Sistema de gestión y monitoreo para el Plan de Descontaminación de Concón, Qu
 
 ## 🛠️ Instalación
 
-### 1. Clonar el repositorio
-
+1. Clonar el repositorio
 ```bash
 git clone https://github.com/your-username/sma_monitor.git
 cd sma_monitor
 ```
 
-### 2. Crear y activar entorno virtual
-
+2. Crear y activar entorno virtual
 ```bash
 python -m venv .venv
 
@@ -46,63 +47,57 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Instalar dependencias
-
+3. Instalar dependencias
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configurar la base de datos PostgreSQL
-
-
-````bash
+4. Configurar la base de datos PostgreSQL
+```bash
 # Crear la base de datos
 createdb plan_descontaminacion
 
-# Configurar credenciales en .env
+# Configurar credenciales en .env (si archivo .env no existe, crearlo en la raíz del directorio)
+cp .env.example .env
+# Editar .env con tus credenciales
+```
 
-Crear un archivo llamado `.env` en la raíz del proyecto con el siguiente contenido:
-
+El archivo .env debe contener:
+```
 DB_NAME=plan_descontaminacion
 DB_USER=tu_usuario
 DB_PASSWORD=tu_contraseña
 DB_HOST=localhost
 DB_PORT=5432
-
-Reemplazar los valores con tus credenciales.
-=======
-```bash
-# Crear la base de datos
-createdb plan_descontaminacion
-
-# Configurar credenciales en .env (si archivo .env - env no existe, crearlo en la raíz del directorio)
-cp .env.example .env
-# Editar .env con tus credenciales
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=tu_correo@gmail.com
+EMAIL_HOST_PASSWORD=tu_contraseña_de_aplicación
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=SMA Monitor <tu_correo@gmail.com>
 ```
 
-### 5. Aplicar migraciones
-
+5. Aplicar migraciones
 ```bash
 python manage.py migrate
-````
+```
 
-### 6. Crear superusuario
-
+6. Crear superusuario
 ```bash
 python manage.py createsuperuser
 ```
 
-### 7. Iniciar el servidor
-
+7. Iniciar el servidor
 ```bash
 python manage.py runserver
 ```
 
-La aplicación estará disponible en 
-- [http://127.0.0.1:8000/](http://127.0.0.1:8000/) -> Para acceder al front
-- [http://127.0.0.1:8000/api/v1/](http://127.0.0.1:8000/api/v1/) -> Acceder a la interfaz de DRF(API)
-- [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/asmin/) -> Para acceder al DRF Admin
-- [http://127.0.0.1:8000/api/v1/swagger/](http://127.0.0.1:8000/api/v1/swagger/) -> Para acceder a la API mediante Swagger
+La aplicación estará disponible en:
+
+- http://127.0.0.1:8000/ -> Para acceder al portal público
+- http://127.0.0.1:8000/api/v1/ -> Acceder a la interfaz de API
+- http://127.0.0.1:8000/admin/ -> Para acceder al Admin de Django
+- http://127.0.0.1:8000/api/v1/swagger/ -> Para acceder a la API mediante Swagger
 
 ## 🏗️ Estructura del Proyecto
 
@@ -112,6 +107,7 @@ sma_monitor/
 │   ├── api/                # API REST
 │   ├── auditorias/         # Sistema de auditoría
 │   ├── medidas/            # Gestión de medidas y avances
+│   ├── notificaciones/     # Sistema de notificaciones
 │   ├── organismos/         # Gestión de organismos
 │   ├── publico/            # Portal público
 │   ├── reportes/           # Generación de reportes
@@ -143,11 +139,50 @@ sma_monitor/
 
 - **Usuario**: Extensión del modelo User de Django con roles específicos
 - **Perfil**: Información adicional del usuario
+- **HistorialAcceso**: Registro de accesos al sistema
+
+### Notificaciones
+
+- **TipoNotificacion**: Categorías de notificaciones del sistema
+- **Notificacion**: Mensajes enviados a los usuarios
+- **ConfiguracionNotificaciones**: Preferencias de notificación por usuario
 
 ### Reportes
 
 - **TipoReporte**: Definición de reportes disponibles
 - **ReporteGenerado**: Instancias de reportes generados
+- **ParametroReporte**: Configuración personalizable para reportes
+
+## 📊 Dashboard
+
+El sistema ofrece múltiples dashboards especializados:
+
+### Dashboard SMA
+
+- Estadísticas globales del plan
+- Avance por componente
+- Organismos con mejor y peor desempeño
+- Medidas próximas a vencer
+- Medidas retrasadas
+- Últimos avances registrados
+
+### Dashboard Organismo
+
+- Medidas asignadas al organismo
+- Estadísticas de cumplimiento
+- Próximos vencimientos
+- Historiales de avance
+
+## 🔔 Sistema de Notificaciones
+
+El sistema cuenta con un completo módulo de notificaciones:
+
+- Notificaciones en tiempo real en la interfaz
+- Envío de notificaciones por correo electrónico
+- Alertas automáticas para medidas próximas a vencer
+- Notificaciones de nuevas asignaciones
+- Registro de avances
+- Panel de gestión de notificaciones
 
 ## 📊 API REST
 
@@ -155,17 +190,18 @@ La API del sistema permite la integración con otras aplicaciones y el consumo d
 
 ### Documentación
 
-- Swagger UI: `/api/swagger/`
-- ReDoc: `/api/redoc/`
-- Esquema OpenAPI: `/api/schema/`
+- Swagger UI: /api/swagger/
+- ReDoc: /api/redoc/
+- Esquema OpenAPI: /api/schema/
 
 ### Endpoints principales
 
-- `/api/organismos/`: Gestión de organismos
-- `/api/medidas/`: Administración de medidas
-- `/api/registros-avance/`: Registro de avances
-- `/api/componentes/`: Componentes del plan
-- `/api/dashboard/`: Datos resumidos para visualización
+- /api/v1/organismos/: Gestión de organismos
+- /api/v1/medidas/: Administración de medidas
+- /api/v1/registros-avance/: Registro de avances
+- /api/v1/componentes/: Componentes del plan
+- /api/v1/dashboard/: Datos resumidos para visualización
+- /api/v1/notificaciones/: Gestión de notificaciones
 
 ## 👥 Perfiles de Usuario
 
@@ -180,28 +216,24 @@ La API del sistema permite la integración con otras aplicaciones y el consumo d
 - Gestión de medidas y componentes
 - Seguimiento de avances
 - Validación de datos
+- Generación de reportes
 
 ### Organismos
 
 - Registro de avances en medidas asignadas
 - Visualización de sus medidas y plazos
+- Recepción de notificaciones
 - Consulta de reportes específicos
 
 ### Ciudadanos
 
 - Visualización del avance general del plan
 - Consulta de información pública
-
-## 📚 Historias de Usuario
-
-Puedes revisar el tablero Kanban del proyecto con todas las historias de usuario y su estado actual:
-
-🔗 [Ver Tablero en Taiga](https://tree.taiga.io/project/natalitarivera-curso-python-grupo-5/kanban)
+- Acceso a reportes públicos
 
 ## 🧪 Testing
 
 Para ejecutar las pruebas:
-
 ```bash
 # Ejecutar todas las pruebas
 python manage.py test
@@ -212,8 +244,24 @@ python manage.py test apps.medidas
 
 ## 🚀 Despliegue
 
-### Preparación
+El sistema está preparado para despliegue en la nube:
 
+### Plataformas soportadas
+
+- Render.com
+- Heroku
+- AWS
+- Google Cloud
+- Azure
+
+### Bases de datos soportadas
+
+- PostgreSQL local
+- PostgreSQL en Neon.tech
+- AWS RDS
+- Google Cloud SQL
+
+### Preparación para producción
 ```bash
 # Recolectar archivos estáticos
 python manage.py collectstatic
@@ -222,16 +270,12 @@ python manage.py collectstatic
 python manage.py check --deploy
 ```
 
-### Configuración de Producción
+### Despliegue en Render y Neon
+Se incluyen archivos de configuración para despliegue automático en Render conectado a una base de datos PostgreSQL en Neon:
 
-En producción, asegúrese de configurar correctamente:
-
-1. Valores `DEBUG = False` y `SECRET_KEY` segura
-2. Configuración HTTPS con certificado SSL
-3. Servidor web (Nginx/Apache) y WSGI (Gunicorn/uWSGI)
-4. Base de datos PostgreSQL optimizada
-5. Cache (Redis/Memcached)
-6. Firewall y medidas de seguridad
+- build.sh: Script de construcción para Render
+- render.yaml: Configuración del servicio web
+- Soporte para variables de entorno seguras
 
 ## 📝 Contribución
 
@@ -242,13 +286,10 @@ En producción, asegúrese de configurar correctamente:
 5. Abre un Pull Request
 
 ## 📄 Licencia
-
-Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo LICENSE para más detalles.
 
 ## 📧 Contacto
+Para soporte o consultas: grupo5@chinorios.com
 
-Para soporte o consultas: [grupo5@chinorios.com](mailto:jesushippie@chinorios.com)
+Desarrollado por Grupo 5 © 2025
 
----
-
-Desarrollado por [Grupo 5](https://grupo-5.com) © 2025
