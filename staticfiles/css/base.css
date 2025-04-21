@@ -33,6 +33,23 @@ body {
     display: flex;
     align-items: center;
 }
+.navbar-logo {
+    height: 50px;
+    background-color:white;
+    width: auto;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+}
+
+
 
 .nav-item form {
     display: inline-block;
@@ -126,5 +143,13 @@ a:hover {
 
     .navbar-nav .nav-item {
         width: 100%;
+    }
+}
+@media (max-width: 768px) {
+    .navbar-logo {
+        height: 38px;
+    }
+    .navbar-brand span {
+        font-size: 0.9rem;
     }
 }
