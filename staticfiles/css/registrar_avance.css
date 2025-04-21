@@ -1,0 +1,100 @@
+.form-control:focus, .form-select:focus {
+    border-color: #06828a;
+    box-shadow: 0 0 0 0.25rem rgba(6, 130, 138, 0.25);
+}
+
+.progress-container {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    position: relative;
+    height: 40px;
+    margin: 10px 0;
+}
+
+.progress-bar {
+    background: linear-gradient(to right, #06828a, #04b4c0);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    text-align: center;
+    color: white;
+    line-height: 40px;
+    font-weight: bold;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    background-color: #06828a;
+    color: white;
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+    padding: 1rem;
+}
+
+.btn-primary {
+    background-color: #06828a;
+    border-color: #06828a;
+}
+
+.btn-primary:hover {
+    background-color: #056970;
+    border-color: #056970;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.custom-file-upload {
+    border: 1px dashed #ddd;
+    border-radius: 0.375rem;
+    display: inline-block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s;
+}
+
+.custom-file-upload:hover {
+    background-color: #e9ecef;
+}
+
+.custom-file-upload i {
+    margin-right: 8px;
+}
+
+/* Estilos para mejorar la apariencia de los campos del formulario */
+.form-control, .form-select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+}
+
+.container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Estilo para mensajes de error */
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Mejoras en botones */
+.btn {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}

@@ -1,7 +1,12 @@
 <!-- templates/medidas/registrar_avance.html -->
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Registrar Avance{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/registrar_avance.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -65,8 +70,7 @@
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary">Registrar Avance</button>
-                            <a href="{% url 'organismos:dashboard_organismo' %}" class="btn btn-secondary">Cancelar</a>
-
+                            <a href="{% url 'medidas:dashboard_organismo' %}" class="btn btn-secondary">Cancelar</a>
                         </div>
                     </form>
                 </div>

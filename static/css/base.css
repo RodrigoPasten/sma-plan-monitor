@@ -33,7 +33,31 @@ body {
     display: flex;
     align-items: center;
 }
+.navbar-logo {
+    height: 50px;
+    background-color:white;
+    width: auto;
+    margin-right: 8px;
+    vertical-align: middle;
+}
 
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+}
+
+
+@media (max-width: 768px) {
+    .navbar-logo {
+        height: 38px;
+    }
+    .navbar-brand span {
+        font-size: 0.9rem;
+    }
+}
 .nav-item form {
     display: inline-block;
     margin-bottom: 0;
@@ -99,10 +123,32 @@ a:hover {
     margin-top: 40px;
 }
 
-/* Responsive para móviles */
-@media (max-width: 576px) {
-    .card {
-        width: 90%;
-        margin: 0 auto;
+/* Estilos para mejorar el menú móvil */
+@media (max-width: 992px) {
+    .navbar-collapse {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        z-index: 1000;
+        padding: 1rem;
+        max-height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+
+    .dropdown-menu {
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        border: none;
+    }
+
+    .navbar-nav .dropdown-menu {
+        position: static;
+        float: none;
+        width: 100%;
+    }
+
+    .navbar-nav .nav-item {
+        width: 100%;
     }
 }
