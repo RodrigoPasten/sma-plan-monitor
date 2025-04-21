@@ -50,14 +50,7 @@ body {
 }
 
 
-@media (max-width: 768px) {
-    .navbar-logo {
-        height: 38px;
-    }
-    .navbar-brand span {
-        font-size: 0.9rem;
-    }
-}
+
 .nav-item form {
     display: inline-block;
     margin-bottom: 0;
@@ -150,5 +143,13 @@ a:hover {
 
     .navbar-nav .nav-item {
         width: 100%;
+    }
+}
+@media (max-width: 768px) {
+    .navbar-logo {
+        height: 38px;
+    }
+    .navbar-brand span {
+        font-size: 0.9rem;
     }
 }
