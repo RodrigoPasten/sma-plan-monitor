@@ -13,6 +13,7 @@ pip-delete-this-directory.txt
 
 # Archivos de configuración y credenciales
 .env
+.venv
 *.secret
 
 # Archivos de migraciones que no sean necesarios
