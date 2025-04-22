@@ -88,7 +88,7 @@ python -c 'import secrets; print(secrets.token_hex(32))'
 Luego copiar la 'secret key' en el archivo .env
 
 6. Seguir las instrucciones del siguiente enlace para obtener la contraseña de la aplicacion:
-[CONTRASEÑA DE APLICACION] (https://support.google.com/accounts/answer/185833?hl=es-419)
+[CONTRASEÑA DE APLICACION](https://support.google.com/accounts/answer/185833?hl=es-419)
 
 7. Aplicar migraciones
 ```bash
