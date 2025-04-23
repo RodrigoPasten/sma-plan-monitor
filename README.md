@@ -123,6 +123,7 @@ sma_monitor/
 ├── ppda_core/              # Configuración principal
 ├── templates/              # Plantillas HTML
 ├── static/                 # Archivos estáticos
+├── tests/                  # Tests automatizados
 ├── media/                  # Archivos subidos por usuarios
 ├── requirements.txt        # Dependencias
 └── manage.py               # Script de gestión de Django
