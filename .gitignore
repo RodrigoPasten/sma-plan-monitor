@@ -41,3 +41,6 @@ logs/
 *.pydevproject
 .project
 .metadata
+
+# Arhivos de base de datos
+*.sqlite3

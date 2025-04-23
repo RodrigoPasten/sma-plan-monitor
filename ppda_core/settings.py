@@ -87,6 +87,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.usuarios.middleware.HistorialAccesoMiddleware',
     'apps.api.middleware.APILoggingMiddleware',
+    'apps.api.middleware.TokenPrefixMiddleware'
 ]
 
 ROOT_URLCONF = 'ppda_core.urls'
@@ -189,7 +190,7 @@ SWAGGER_SETTINGS = {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header',
-            'description': 'Formato: Token <tu_token>'
+            'description': 'Formato: <tu_token>'
         }
     },
 }
