@@ -31,12 +31,14 @@ Sistema de gestión y monitoreo para el Plan de Descontaminación de Concón, Qu
 ## 🛠️ Instalación
 
 1. Clonar el repositorio
+
 ```bash
 git clone https://github.com/your-username/sma_monitor.git
 cd sma_monitor
 ```
 
 2. Crear y activar entorno virtual
+
 ```bash
 python -m venv .venv
 
@@ -48,11 +50,13 @@ source .venv/bin/activate
 ```
 
 3. Instalar dependencias
+
 ```bash
 pip install -r requirements.txt
 ```
 
 4. Configurar la base de datos PostgreSQL
+
 ```bash
 # Crear la base de datos
 createdb plan_descontaminacion
@@ -63,6 +67,7 @@ cp .env.example .env
 ```
 
 El archivo .env debe contener:
+
 ```
 DB_NAME=plan_descontaminacion
 DB_USER=tu_usuario
@@ -128,6 +133,7 @@ sma_monitor/
 ├── ppda_core/              # Configuración principal
 ├── templates/              # Plantillas HTML
 ├── static/                 # Archivos estáticos
+├── tests/                  # Tests automatizados
 ├── media/                  # Archivos subidos por usuarios
 ├── requirements.txt        # Dependencias
 └── manage.py               # Script de gestión de Django
@@ -246,13 +252,59 @@ La API del sistema permite la integración con otras aplicaciones y el consumo d
 
 ## 🧪 Testing
 
-Para ejecutar las pruebas:
-```bash
-# Ejecutar todas las pruebas
-python manage.py test
+El proyecto incluye pruebas automatizadas para asegurar la correcta funcionalidad de los modelos, serializadores y asignaciones.
 
-# Ejecutar pruebas específicas
-python manage.py test apps.medidas
+### 🧬 Cobertura de Tests
+
+Se han implementado tests para:
+
+- **Modelos (`Medida`)**:
+  - Creación válida
+  - Restricciones de unicidad (`codigo`)
+  - Validaciones de `estado` y `prioridad` (`choices`)
+  - Ordenamiento por `codigo`
+- **Serializadores (`MedidaSerializer`)**:
+  - Creación de medida vía serializer
+  - Actualización de medida vía serializer
+- **Modelo de Asignación (`AsignacionMedida`)**:
+  - Creación de una asignación válida
+  - Representación en string (str)
+
+### 📁 Ubicación de los tests
+
+Todos los tests están organizados dentro del directorio raíz `tests/`:
+
+```
+tests/
+├── test_modelo_medidas.py
+├── test_medida_serializer.py
+└── test_asignacion_medida.py
+```
+
+### ▶️ Cómo ejecutarlos
+
+#### Ejecutar todos los tests:
+
+```bash
+pytest --ds=ppda_core.settings
+```
+
+#### Ejecutar un archivo específico:
+
+```bash
+pytest tests/test_modelo_medidas.py --ds=ppda_core.settings
+```
+
+#### Ejecutar una clase de test específica:
+
+```bash
+pytest tests/test_modelo_medidas.py::TestMedidasModel --ds=ppda_core.settings
+```
+
+#### Ejecutar un método específico:
+
+```bash
+pytest tests/test_modelo_medidas.py::TestMedidasModel::test_medida_creation --ds=ppda_core.settings
 ```
 
 ## 🚀 Despliegue
@@ -275,6 +327,7 @@ El sistema está preparado para despliegue en la nube:
 - Google Cloud SQL
 
 ### Preparación para producción
+
 ```bash
 # Recolectar archivos estáticos
 python manage.py collectstatic
@@ -284,6 +337,7 @@ python manage.py check --deploy
 ```
 
 ### Despliegue en Render y Neon
+
 Se incluyen archivos de configuración para despliegue automático en Render conectado a una base de datos PostgreSQL en Neon:
 
 - build.sh: Script de construcción para Render
@@ -299,10 +353,11 @@ Se incluyen archivos de configuración para despliegue automático en Render con
 5. Abre un Pull Request
 
 ## 📄 Licencia
+
 Este proyecto está licenciado bajo la Licencia MIT - ver el archivo LICENSE para más detalles.
 
 ## 📧 Contacto
+
 Para soporte o consultas: grupo5@chinorios.com
 
 Desarrollado por Grupo 5 © 2025
-
