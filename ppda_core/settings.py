@@ -147,21 +147,11 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # Solo Token
-    ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.SearchFilter',
-        'rest_framework.filters.OrderingFilter',
-    ],
+    # Otras configuraciones de REST Framework...
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+# Configuración de Spectacular
 # Configuración de drf-spectacular
 SPECTACULAR_SETTINGS = {
     'TITLE': 'API Plan de Descontaminación',
@@ -174,6 +164,7 @@ SPECTACULAR_SETTINGS = {
         'displayOperationId': True,
         'persistAuthorization': True,
     },
+    'SCHEMA_PATH_PREFIX': '/api/v1',  # Añade esta línea
     'SECURITY': [{'Bearer': []}],
     'SCHEMAS': {
         'Bearer': {
@@ -181,7 +172,12 @@ SPECTACULAR_SETTINGS = {
             'in': 'header',
             'name': 'Authorization',
         }
-    }
+    },
+    'TAGS': [  # Añade esta sección
+        {'name': 'medidas', 'description': 'Endpoints relacionados con medidas'},
+        {'name': 'organismos', 'description': 'Endpoints relacionados con organismos'},
+        {'name': 'reportes', 'description': 'Endpoints relacionados con reportes'}
+    ],
 }
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
