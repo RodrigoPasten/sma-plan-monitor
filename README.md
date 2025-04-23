@@ -241,18 +241,6 @@ La API del sistema permite la integración con otras aplicaciones y el consumo d
 
 ## 🧪 Testing
 
-Para ejecutar las pruebas:
-
-```bash
-# Ejecutar todas las pruebas
-python manage.py test
-
-# Ejecutar pruebas específicas
-python manage.py test apps.medidas
-```
-
-## 🧪 Tests
-
 El proyecto incluye pruebas automatizadas para asegurar la correcta funcionalidad de los modelos, serializadores y asignaciones.
 
 ### 🧬 Cobertura de Tests
