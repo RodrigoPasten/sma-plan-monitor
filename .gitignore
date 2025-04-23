@@ -13,6 +13,7 @@ pip-delete-this-directory.txt
 
 # Archivos de configuración y credenciales
 .env
+.venv
 *.secret
 
 # Archivos de migraciones que no sean necesarios
@@ -41,3 +42,6 @@ logs/
 *.pydevproject
 .project
 .metadata
+
+# Arhivos de base de datos
+*.sqlite3
