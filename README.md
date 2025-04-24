@@ -240,62 +240,95 @@ La API del sistema permite la integración con otras aplicaciones y el consumo d
 - Consulta de información pública
 - Acceso a reportes públicos
 
-## 🧪 Testing
+## 🧪 Pruebas unitarias
 
-El proyecto incluye pruebas automatizadas para asegurar la correcta funcionalidad de los modelos, serializadores y asignaciones.
+El proyecto incluye una suite completa de **pruebas unitarias** para asegurar la calidad y el correcto funcionamiento de cada módulo:
 
-### 🧬 Cobertura de Tests
+### 🧬 Cobertura de pruebas
 
-Se han implementado tests para:
+#### Modelos
 
-- **Modelos (`Medida`)**:
-  - Creación válida
-  - Restricciones de unicidad (`codigo`)
-  - Validaciones de `estado` y `prioridad` (`choices`)
-  - Ordenamiento por `codigo`
-- **Serializadores (`MedidaSerializer`)**:
-  - Creación de medida vía serializer
-  - Actualización de medida vía serializer
-- **Modelo de Asignación (`AsignacionMedida`)**:
-  - Creación de una asignación válida
-  - Representación en string (str)
+- `tests/test_modelo_medidas.py`
+  - Validación de creación y restricciones del modelo `Medida`
+- `tests/test_notificacion_model.py`
+  - Creación de instancias de `Notificacion` y valores por defecto
+- `tests/test_tipo_notificacion_model.py`
+  - Creación de instancias de `TipoNotificacion`
+- `tests/test_tipo_reporte_model.py`
+  - Creación de instancias de `TipoReporte`
+- `tests/test_reporte_generado_model.py`
+  - Creación de instancias de `ReporteGenerado` y valores por defecto
 
-### 📁 Ubicación de los tests
+#### Serializadores
 
-Todos los tests están organizados dentro del directorio raíz `tests/`:
+- `tests/test_medida_serializer.py`
+  - Crear y actualizar recursos `Medida` a través de su serializer
 
-```
-tests/
-├── test_modelo_medidas.py
-├── test_medida_serializer.py
-└── test_asignacion_medida.py
-```
+#### Asignaciones
 
-### ▶️ Cómo ejecutarlos
+- `tests/test_asignacion_medida.py`
+  - Creación y representación en cadena de `AsignacionMedida`
 
-#### Ejecutar todos los tests:
+#### Vistas
 
-```bash
-pytest --ds=ppda_core.settings
-```
+- `tests/test_medidas_views.py`
+  - CRUD y listados de `Medida`
+- `tests/test_dashboard_organismo_view.py`
+  - Acceso y contexto de la vista Dashboard para Organismo
+- `tests/test_dashboard_sma_view.py`
+  - Acceso y contexto de la vista Dashboard SMA
+- `tests/test_registrar_avance_view.py`
+  - Formulario de registro de avances (`RegistroAvance`)
+- `tests/test_medida_detail_view.py`
+  - Vista detalle de una `Medida`
+- `tests/test_notificacion_list_view.py`
+  - Listado de notificaciones para el usuario
+- `tests/test_notificacion_detail_view.py`
+  - Detalle de una `Notificacion`
+- `tests/test_marcar_notificacion_leida_view.py`
+  - Marcar una notificación como leída (AJAX/JSON)
+- `tests/test_marcar_todas_leidas_view.py`
+  - Marcar todas las notificaciones como leídas
+- `tests/test_reporte_list_view.py`
+  - Filtrado y acceso a la lista de `TipoReporte` según rol
+- `tests/test_mis_reportes_list_view.py`
+  - Listado de reportes generados por el usuario (`ReporteGenerado`)
+- `tests/test_reporte_detail_view.py`
+  - Detalle de un `ReporteGenerado` y parámetros asociados
+- `tests/test_generar_reporte_view.py`
+  - Formulario de generación de reportes
 
-#### Ejecutar un archivo específico:
+#### Servicios
 
-```bash
-pytest tests/test_modelo_medidas.py --ds=ppda_core.settings
-```
+- `tests/test_reporte_service_generar_reporte.py`
+  - Lógica de permisos y generación de reportes desde `ReporteService`
 
-#### Ejecutar una clase de test específica:
+### ▶️ Cómo ejecutarlas
 
-```bash
-pytest tests/test_modelo_medidas.py::TestMedidasModel --ds=ppda_core.settings
-```
+- **Todas las pruebas unitarias**
 
-#### Ejecutar un método específico:
+  ```bash
+  pytest --ds=ppda_core.settings
+  ```
 
-```bash
-pytest tests/test_modelo_medidas.py::TestMedidasModel::test_medida_creation --ds=ppda_core.settings
-```
+- **Un archivo específico**
+
+  ```bash
+  pytest tests/test_modelo_medidas.py --ds=ppda_core.settings
+  ```
+
+- **Una clase específica**
+
+  ```bash
+  pytest tests/test_modelo_medidas.py::MedidaModelTest --ds=ppda_core.settings
+  ```
+
+- **Un método específico**
+  ```bash
+  pytest tests/test_modelo_medidas.py::MedidaModelTest::test_medida_creation --ds=ppda_core.settings
+  ```
+
+---
 
 ## 🚀 Despliegue
 

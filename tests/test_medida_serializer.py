@@ -1,4 +1,3 @@
-# apps/medidas/tests/test_medida_serializer.py
 import pytest
 import unittest
 from rest_framework.test import APIClient

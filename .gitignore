@@ -42,3 +42,5 @@ logs/
 *.pydevproject
 .project
 .metadata
+
+reportes/**/*.pdf
