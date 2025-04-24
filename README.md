@@ -123,7 +123,7 @@ sma_monitor/
 ├── ppda_core/              # Configuración principal
 ├── templates/              # Plantillas HTML
 ├── static/                 # Archivos estáticos
-├── tests/                  # Tests automatizados
+├── tests/                  # Pruebas unitarias
 ├── media/                  # Archivos subidos por usuarios
 ├── requirements.txt        # Dependencias
 └── manage.py               # Script de gestión de Django
@@ -242,7 +242,7 @@ La API del sistema permite la integración con otras aplicaciones y el consumo d
 
 ## 🧪 Pruebas unitarias
 
-El proyecto incluye una suite completa de **pruebas unitarias** para asegurar la calidad y el correcto funcionamiento de cada módulo:
+El proyecto incluye pruebas unitarias para asegurar la calidad y el correcto funcionamiento de cada módulo:
 
 ### 🧬 Cobertura de pruebas
 
