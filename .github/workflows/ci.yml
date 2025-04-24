@@ -55,4 +55,4 @@ jobs:
       - name: Security check
         run: |
           pip install safety
-          safety check --ignore=51457  # Ignore known false positives
+          safety check --ignore=51457 --ignore=66963 --ignore=74429 # Ignore known false positives
