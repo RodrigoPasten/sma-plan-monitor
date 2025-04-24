@@ -1,4 +1,3 @@
-# apps/medidas/tests/test_modelo_medidas.py
 import pytest
 import unittest
 from datetime import date

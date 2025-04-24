@@ -1,4 +1,3 @@
-# apps/medidas/tests/test_asignacion_medida.py
 import pytest
 import unittest
 from datetime import date
