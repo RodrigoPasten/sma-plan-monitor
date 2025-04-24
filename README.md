@@ -74,28 +74,38 @@ DB_USER=tu_usuario
 DB_PASSWORD=tu_contraseña
 DB_HOST=localhost
 DB_PORT=5432
+DB_PRODUCTION_HOST=example.com
+SECRET_KEY=tu_secret_key
+
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_HOST_USER=tu_correo@gmail.com
 EMAIL_HOST_PASSWORD=tu_contraseña_de_aplicación
 EMAIL_USE_TLS=True
 DEFAULT_FROM_EMAIL=SMA Monitor <tu_correo@gmail.com>
+SITE_URL=la url de tu sitio aqui(example: http://localhost:8000)
 ```
 
-5. Aplicar migraciones
+5. Correr el comando
+```bash
+python -c 'import secrets; print(secrets.token_hex(32))'
+```
+Luego copiar la 'secret key' en el archivo .env
 
+6. Seguir las instrucciones del siguiente enlace para obtener la contraseña de la aplicacion:
+[CONTRASEÑA DE APLICACION](https://support.google.com/accounts/answer/185833?hl=es-419)
+
+7. Aplicar migraciones
 ```bash
 python manage.py migrate
 ```
 
-6. Crear superusuario
-
+8. Crear superusuario
 ```bash
 python manage.py createsuperuser
 ```
 
-7. Iniciar el servidor
-
+9. Iniciar el servidor
 ```bash
 python manage.py runserver
 ```

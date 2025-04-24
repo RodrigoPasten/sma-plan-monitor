@@ -44,3 +44,5 @@ logs/
 .metadata
 
 reportes/**/*.pdf
+# Arhivos de base de datos
+*.sqlite3

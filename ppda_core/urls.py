@@ -1,35 +1,30 @@
-"""
-URL configuration for ppda_core project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
+from django.urls import path, include
+from django.contrib import admin
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from django.views.generic import TemplateView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # API Endpoint
     path('api/v1/', include('apps.api.urls')),
+
+    # Esquemas OpenAPI y documentación
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/docs/rapidoc/', TemplateView.as_view(
+        template_name='rapidoc.html',
+        extra_context={'schema_url': '/api/schema/'}  # Nota: se quitó format=openapi
+    ), name='rapidoc'),
+
+    # Tus otras URLs...
     path('medidas/', include('apps.medidas.urls')),
     path('organismos/', include('apps.organismos.urls')),
-
     path('reportes/', include('apps.reportes.urls')),
-
     path('accounts/', include('django.contrib.auth.urls')),
     # URLs de autenticación explícitas
     path('login/', auth_views.LoginView.as_view(), name='login'),
@@ -44,6 +39,7 @@ urlpatterns = [
     # El portal público se mapea a la raíz del sitio
     path('', include('apps.publico.urls')),
 ]
+
 # Agregar URLs para archivos estáticos y media en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
