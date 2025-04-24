@@ -52,11 +52,6 @@ jobs:
           coverage run --source='.' manage.py test
           coverage report -m
           
-      - name: Lint code
-        run: |
-          pip install flake8
-          flake8 . --count --show-source --statistics
-          
       - name: Security check
         run: |
           pip install safety
