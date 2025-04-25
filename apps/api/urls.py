@@ -2,10 +2,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from drf_yasg.views import get_schema_view
+from drf_yasg.generators import OpenAPISchemaGenerator
 from drf_yasg import openapi
-from rest_framework.permissions import AllowAny
-
-
 
 from .views.organismos import OrganismoViewSet, TipoOrganismoViewSet
 from .views.medidas import ComponenteViewSet, MedidaViewSet, RegistroAvanceViewSet
@@ -13,15 +11,26 @@ from .views.dashboard import DashboardView
 
 from .views.auth import CustomAuthToken, LogoutView
 
-from rest_framework.routers import DefaultRouter
 from .views.reportes import TipoReporteViewSet, ReporteGeneradoViewSet
 
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.permissions import AllowAny
 from rest_framework.authentication import TokenAuthentication
 
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
+class TaggedSchemaGenerator(OpenAPISchemaGenerator):
+    def get_tags(self, endpoints):
+        return [
+            {'name': 'Autenticación', 'description': 'Endpoints de autenticación'},
+            {'name': 'Organismos', 'description': 'Gestión de organismos'},
+            {'name': 'Tipos de Organismo', 'description': 'Tipos de organismos'},
+            {'name': 'Medidas', 'description': 'Gestión de medidas'},
+            {'name': 'Componentes', 'description': 'Componentes del plan'},
+            {'name': 'Avances', 'description': 'Registro de avances'},
+            {'name': 'Reportes', 'description': 'Generación de reportes'},
+            {'name': 'Dashboard', 'description': 'Paneles de control'},
+            {'name': 'Notificaciones', 'description': 'Gestión de notificaciones'},
+        ]
+
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -34,6 +43,7 @@ schema_view = get_schema_view(
     ),
     public=True,
     permission_classes=(AllowAny,),
+    generator_class=TaggedSchemaGenerator
 )
 
 app_name = 'api'

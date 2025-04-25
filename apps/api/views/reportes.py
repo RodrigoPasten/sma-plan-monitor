@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from apps.reportes.models import TipoReporte, ReporteGenerado
 from apps.reportes.services import ReporteService
 from ..serializers.reportes import TipoReporteSerializer, ReporteGeneradoSerializer, GenerarReporteSerializer
-
+from drf_yasg.utils import swagger_auto_schema
 
 class TipoReporteViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -16,6 +16,14 @@ class TipoReporteViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = TipoReporte.objects.all()
     serializer_class = TipoReporteSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    @swagger_auto_schema(tags=['Reportes'])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=['Reportes'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
     def get_queryset(self):
         # Filtrar tipos de reporte según el rol del usuario
@@ -40,6 +48,30 @@ class ReporteGeneradoViewSet(viewsets.ModelViewSet):
     """
     serializer_class = ReporteGeneradoSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+    @swagger_auto_schema(tags=['Reportes'])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=['Reportes'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Reportes'])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Reportes'])
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Reportes'])
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Reportes'])
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
     def get_queryset(self):
         # Un usuario solo puede ver sus propios reportes (excepto superadmin y admin_sma)
@@ -48,6 +80,7 @@ class ReporteGeneradoViewSet(viewsets.ModelViewSet):
             return ReporteGenerado.objects.all().order_by('-fecha_generacion')
         return ReporteGenerado.objects.filter(usuario=user).order_by('-fecha_generacion')
 
+    @swagger_auto_schema(tags=['Reportes'])
     @action(detail=False, methods=['post'])
     def generar(self, request):
         """
@@ -85,6 +118,7 @@ class ReporteGeneradoViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(tags=['Reportes'])
     @action(detail=True, methods=['get'])
     def descargar(self, request, pk=None):
         """
