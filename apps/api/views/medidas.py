@@ -11,8 +11,10 @@ from drf_spectacular.utils import (
     extend_schema_view,
     OpenApiParameter,
     OpenApiResponse,
-    OpenApiExample
+    OpenApiExample,
 )
+
+from drf_yasg.utils import swagger_auto_schema
 
 from ..filters import MedidaFilter, RegistroAvanceFilter
 from apps.medidas.models import Componente, Medida, RegistroAvance, LogMedida
@@ -46,32 +48,49 @@ def debug_auth(request):
     })
 
 @extend_schema_view(
-    list=extend_schema(description="Listar todos los componentes del plan"),
+    list=extend_schema(
+        description="Listar todos los componentes del plan",
+        tags=['Componentes']),
     retrieve=extend_schema(description="Obtener un componente específico"),
 )
+
+@swagger_auto_schema(
+    tags=['Componentes'], 
+    operation_description="API endpoint para consultar componentes del plan"
+    )
 class ComponenteViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint para consultar componentes del plan.
     """
-
     queryset = Componente.objects.filter(activo=True)
     serializer_class = ComponenteSerializer
     permission_classes = [IsPublicEndpoint]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["nombre", "codigo"]
+    
+    @extend_schema(tags=['Componentes'])
+    @swagger_auto_schema(tags=['Componentes'])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(tags=['Componentes'])
+    @swagger_auto_schema(tags=['Componentes'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
 
 @extend_schema_view(
-    list=extend_schema(description="Listar todas las medidas"),
-    retrieve=extend_schema(description="Obtener una medida específica"),
+    list=extend_schema(description="Listar todas las medidas", tags=['Medidas']),
+    retrieve=extend_schema(description="Obtener una medida específica", tags=['Medidas']),
     create=extend_schema(
         description="Crear una nueva medida",
         request=MedidaSerializer,
         responses={201: MedidaDetailSerializer},
+        tags=['Medidas']
     ),
-    update=extend_schema(description="Actualizar una medida existente"),
-    partial_update=extend_schema(description="Actualizar parcialmente una medida"),
-    destroy=extend_schema(description="Eliminar una medida"),
+    update=extend_schema(description="Actualizar una medida existente", tags=['Medidas']),
+    partial_update=extend_schema(description="Actualizar parcialmente una medida", tags=['Medidas']),
+    destroy=extend_schema(description="Eliminar una medida", tags=['Medidas']),
     registrar_avance=extend_schema(
         description="Registrar un nuevo avance para esta medida",
         request=RegistroAvanceSerializer,
@@ -82,6 +101,7 @@ class ComponenteViewSet(viewsets.ReadOnlyModelViewSet):
             ),
             400: OpenApiResponse(description="Datos inválidos"),
         },
+        tags=['Medidas']
     ),
 )
 
@@ -125,7 +145,8 @@ class ComponenteViewSet(viewsets.ReadOnlyModelViewSet):
                     }
                 ]
             )
-        ]
+        ],
+        tags=['Medidas']
     ),
     retrieve=extend_schema(
         description="Obtiene el detalle de una medida específica por ID.",
@@ -164,10 +185,11 @@ class ComponenteViewSet(viewsets.ReadOnlyModelViewSet):
                     ]
                 }
             )
-        ]
+        ],
+        tags=['Medidas']
     )
 )
-
+@swagger_auto_schema(tags=['Medidas'])
 class MedidaViewSet(viewsets.ModelViewSet):
     """
     API endpoint para consultar y gestionar medidas.
@@ -179,7 +201,27 @@ class MedidaViewSet(viewsets.ModelViewSet):
     search_fields = ["codigo", "nombre", "descripcion"]
     filterset_class = MedidaFilter
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer, MedidaCSVRenderer]
+    
+    @swagger_auto_schema(tags=['Medidas'])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
+    @swagger_auto_schema(tags=['Medidas'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Medidas'])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Medidas'])
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Medidas'])
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
     def get_queryset(self):
         user = self.request.user
 
@@ -193,7 +235,7 @@ class MedidaViewSet(viewsets.ModelViewSet):
 
         # Para usuarios no autenticados o ciudadanos
         return Medida.objects.all()
-
+    
     def get_serializer_class(self):
         if self.action == "list":
             return MedidaListSerializer
@@ -212,6 +254,10 @@ class MedidaViewSet(viewsets.ModelViewSet):
             permission_classes = [IsPublicEndpoint]
         return [permission() for permission in permission_classes]
 
+    @swagger_auto_schema(
+        tags=['Medidas'],
+        operation_description="Desactivar una Medida: Cambiar el estado de una medida a Inactivo en lugar de borrar.")
+    
     def destroy(self, instance, *args, **kwargs):
         """Desactivar una Medida: Cambiar el estado de una medida a Inactivo en lugar de borrar."""
         instance = self.get_object()
@@ -230,7 +276,11 @@ class MedidaViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Obtener los avances de una medida específica",
         responses={200: RegistroAvanceSerializer(many=True)},
+        tags=['Medidas']
     )
+    @swagger_auto_schema(
+        tags=['Medidas'],
+        operation_description="Obtener los avances de una medida específica")
     @action(detail=True, methods=["get"])
     def avances(self, request, pk=None):
         """
@@ -241,6 +291,9 @@ class MedidaViewSet(viewsets.ModelViewSet):
         serializer = RegistroAvanceSerializer(avances, many=True)
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        tags=['Medidas'],
+        operation_description="Registrar un nuevo avance para esta medida.")
     @action(detail=True, methods=["post"], permission_classes=[IsOrganismoMember])
     def registrar_avance(self, request, pk=None):
         """
@@ -279,6 +332,8 @@ class MedidaViewSet(viewsets.ModelViewSet):
     ),
     destroy=extend_schema(description="Eliminar un registro de avance"),
 )
+
+@swagger_auto_schema(tags=['Registro Avance'])
 class RegistroAvanceViewSet(viewsets.ModelViewSet):
     """
     API endpoint para consultar y gestionar registros de avance.
@@ -291,6 +346,30 @@ class RegistroAvanceViewSet(viewsets.ModelViewSet):
     filterset_class = RegistroAvanceFilter
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer, RegistroAvanceCSVRenderer]
 
+    @swagger_auto_schema(tags=['Registro Avance'])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=['Registro Avance'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Registro Avance'])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Registro Avance'])
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Registro Avance'])
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Registro Avance'])
+    def destroy(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
     def get_queryset(self):
         user = self.request.user
 

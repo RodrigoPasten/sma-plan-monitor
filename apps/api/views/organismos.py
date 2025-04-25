@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_yasg.utils import swagger_auto_schema
 from apps.organismos.models import Organismo, TipoOrganismo
 from ..serializers.organismos import (
     OrganismoDetailSerializer,
@@ -26,7 +27,14 @@ class TipoOrganismoViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsPublicEndpoint]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['nombre']
+    
+    @swagger_auto_schema(tags=['Organismos'])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
+    @swagger_auto_schema(tags=['Organismos'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
 @extend_schema_view(
     list=extend_schema(description="Listar todos los organismos"),
@@ -44,6 +52,26 @@ class OrganismoViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['tipo', 'comuna', 'region']
     search_fields = ['nombre', 'rut', 'email_contacto']
+    
+    @swagger_auto_schema(tags=['Organismos'])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=['Organismos'])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Organismos'])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Organismos'])
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=['Organismos'])
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -59,6 +87,7 @@ class OrganismoViewSet(viewsets.ModelViewSet):
             permission_classes = [IsSuperAdmin | IsAdminSMA]
         return [permission() for permission in permission_classes]
     
+    @swagger_auto_schema(tags=['Organismos'])
     def destroy(self, request, *args, **kwargs):
         """Desactivar un Organismo: Cambiar el estado de un organismo a Inactivo en lugar de borrar."""
         instance = self.get_object()
